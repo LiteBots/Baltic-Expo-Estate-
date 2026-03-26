@@ -10,7 +10,7 @@
     <meta name="author" content="Baltic Expo Estate">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://www.balticexpo.pl/">
-     <link rel="icon" href="favicon.png" sizes="any">
+    <link rel="icon" href="favicon.png" sizes="any">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.balticexpo.pl/">
     <meta property="og:title" content="Bałtyckie Targi Nieruchomości | Słupsk 2026">
@@ -41,7 +41,7 @@
       "organizer": {
         "@type": "Organization",
         "name": "Baltic Expo Estate",
-        "url": "https://twojadomena.pl/"
+        "url": "https://www.balticexpo.pl/"
       }
     }
     </script>
@@ -134,6 +134,9 @@
         /* Ukrywanie paska przewijania dla karuzeli na telefonach */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Dodajemy gładkie przewijanie, żeby autoplay wyglądał ładnie */
+        .smooth-scroll { scroll-behavior: smooth; }
     </style>
 </head>
 <body class="antialiased">
@@ -198,6 +201,11 @@
             const [topIsSubmitting, setTopIsSubmitting] = useState(false);
             
             const heroTextRef = useRef(null);
+            
+            // Referencja do naszej karuzeli (slidera)
+            const carouselRef = useRef(null);
+            // Stan sprawdzający czy użytkownik aktualnie dotyka/przewija karuzelę
+            const [isUserInteracting, setIsUserInteracting] = useState(false);
 
             useEffect(() => {
                 const observerOptions = { root: null, rootMargin: '0px', threshold: 0.15 };
@@ -238,6 +246,32 @@
                     document.body.style.overflow = 'unset';
                 }
             }, [mobileMenuOpen]);
+
+            // === AUTOPLAY KARUZELI NA URZĄDZENIACH MOBILNYCH ===
+            useEffect(() => {
+                // Jeśli ekran jest duży (komputery, gdzie mamy grid) lub jeśli użytkownik dotyka ekranu, nie rób nic
+                if (window.innerWidth >= 1024 || isUserInteracting) return;
+
+                const carousel = carouselRef.current;
+                if (!carousel) return;
+
+                const intervalId = setInterval(() => {
+                    // Sprawdzamy czy osiągnęliśmy koniec karuzeli
+                    const isAtEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10;
+                    
+                    if (isAtEnd) {
+                        // Jeśli tak, wracamy na początek
+                        carousel.scrollTo({ left: 0, behavior: 'smooth' });
+                    } else {
+                        // Jeśli nie, przesuwamy o szerokość jednego elementu (85vw)
+                        // Przeliczamy 85vw na pixele
+                        const scrollAmount = window.innerWidth * 0.85; 
+                        carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                    }
+                }, 3000); // Co ile milisekund ma się przesuwać (tutaj co 3 sekundy)
+
+                return () => clearInterval(intervalId); // Czyścimy interval żeby nie zaśmiecać pamięci
+            }, [isUserInteracting]);
 
             // === FUNKCJA POBIERANIA DANYCH Z GUS/MF ===
             const handleNipChange = async (e) => {
@@ -508,7 +542,17 @@
                             </div>
                         </div>
                         
-                        <div className="flex lg:grid lg:grid-cols-5 overflow-x-auto snap-x snap-mandatory hide-scrollbar border-t border-l border-black">
+                        <div 
+                            ref={carouselRef}
+                            className="flex lg:grid lg:grid-cols-5 overflow-x-auto snap-x snap-mandatory hide-scrollbar border-t border-l border-black smooth-scroll"
+                            onTouchStart={() => setIsUserInteracting(true)}
+                            onTouchEnd={() => {
+                                // Opóźniamy restart autoplay o kilka sekund po tym jak użytkownik zabierze palec
+                                setTimeout(() => setIsUserInteracting(false), 3000); 
+                            }}
+                            onMouseEnter={() => setIsUserInteracting(true)} // Zatrzymuje jeśli ktoś najedzie myszką (choć na kompie to grid)
+                            onMouseLeave={() => setIsUserInteracting(false)}
+                        >
                             {AUDIENCE.map((item, idx) => (
                                 <div key={item.id} className="w-[85vw] sm:w-[45vw] lg:w-auto shrink-0 snap-center group relative border-r border-b border-black h-[280px] lg:h-auto lg:aspect-square p-6 md:p-8 flex flex-col justify-between overflow-hidden cursor-pointer hover:bg-black hover:text-white transition-all duration-500 reveal reveal-scale" style={{transitionDelay: `${(idx % 5) * 50}ms`}}>
                                     <div className="absolute top-4 right-4 text-zinc-200 font-bold text-lg md:text-xl font-grotesk group-hover:text-zinc-800 transition-colors">
