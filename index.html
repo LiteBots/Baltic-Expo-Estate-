@@ -146,19 +146,6 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        const AUDIENCE = [
-            { id: 1, title: "Deweloperzy", icon: "building-2", desc: "Prezentacja nowych inwestycji i osiedli." },
-            { id: 2, title: "Agencje", icon: "home", desc: "Rynek wtórny i pierwotny w jednym miejscu." },
-            { id: 3, title: "Pośrednicy", icon: "calculator", desc: "Doradztwo finansowe i kredyty hipoteczne." },
-            { id: 4, title: "Banki", icon: "landmark", desc: "Bezpośrednie oferty finansowania." },
-            { id: 5, title: "Budowlane", icon: "hard-hat", desc: "Generalni wykonawcy i podwykonawcy." },
-            { id: 6, title: "Wykończenia", icon: "paint-roller", desc: "Remonty i wykończenia pod klucz." },
-            { id: 7, title: "Wnętrza", icon: "sofa", desc: "Meble, oświetlenie i artykuły dekoracyjne." },
-            { id: 8, title: "Notariusze", icon: "pen-tool", desc: "Obsługa prawna transakcji." },
-            { id: 9, title: "Projektanci", icon: "ruler", desc: "Architekci i projektanci wnętrz." },
-            { id: 10, title: "Modułowe", icon: "box", desc: "Nowoczesne technologie budownictwa." }
-        ];
-
         const TICKER_WORDS = ["INWESTYCJE", "NETWORKING", "ROZWÓJ", "BIZNES", "NIERUCHOMOŚCI", "KREDYTY", "BUDOWNICTWO", "DESIGN"];
 
         const EMAILJS_SERVICE_ID = 'service_lvd7cze';
@@ -172,8 +159,8 @@
             return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
         };
 
-        const Ticker = ({ direction = 'left', className = "", dark = false }) => (
-            <div className={`flex overflow-hidden whitespace-nowrap py-4 md:py-5 border-y ${dark ? 'bg-black border-zinc-800 text-white' : 'bg-white border-zinc-200 text-black'} ${className}`}>
+        const Ticker = ({ direction = 'left', className = "" }) => (
+            <div className={`flex overflow-hidden whitespace-nowrap py-4 md:py-5 border-y border-zinc-200 ${className}`}>
                 <div className={`flex ${direction === 'left' ? 'animate-marquee' : 'animate-marquee-fast'} items-center`}>
                     {[...TICKER_WORDS, ...TICKER_WORDS, ...TICKER_WORDS, ...TICKER_WORDS].map((word, i) => (
                         <div key={i} className="flex items-center">
@@ -186,7 +173,6 @@
         );
 
         function App() {
-            // STANY BLOKADY STRONY (MAINTENANCE)
             const [isLocked, setIsLocked] = useState(true);
             const [showDevInput, setShowDevInput] = useState(false);
             const [unlockCode, setUnlockCode] = useState('');
@@ -194,22 +180,13 @@
             const [scrolled, setScrolled] = useState(false);
             const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
             
-            // Stany formularza głównego
             const [formData, setFormData] = useState({ nip: '', companyName: '', name: '', phone: '', email: '' });
             const [formStatus, setFormStatus] = useState(null);
             const [isSubmitting, setIsSubmitting] = useState(false);
             const [isFetchingNip, setIsFetchingNip] = useState(false);
-
-            // Stany formularza górnego
-            const [topFormData, setTopFormData] = useState({ name: '', company: '', email: '', phone: '', consent: false });
-            const [topFormStatus, setTopFormStatus] = useState(null);
-            const [topIsSubmitting, setTopIsSubmitting] = useState(false);
             
             const heroTextRef = useRef(null);
-            const carouselRef = useRef(null);
-            const [isUserInteracting, setIsUserInteracting] = useState(false);
 
-            // Obsługa wpisywania kodu dewelopera
             const handleUnlockCodeChange = (e) => {
                 const val = e.target.value;
                 setUnlockCode(val);
@@ -219,7 +196,6 @@
                 }
             };
 
-            // Blokowanie scrolla podczas blokady lub otwartego menu
             useEffect(() => {
                 if (isLocked || mobileMenuOpen) {
                     document.body.style.overflow = 'hidden';
@@ -239,7 +215,6 @@
                     });
                 }, observerOptions);
 
-                // Opóźnienie obserwatora, by nie "odkrywał" elementów gdy strona jest zablokowana
                 if (!isLocked) {
                     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
                 }
@@ -261,29 +236,8 @@
                     window.removeEventListener('scroll', handleScroll);
                     observer.disconnect();
                 };
-            }, [isLocked]); // Reaguj na odblokowanie strony
+            }, [isLocked]); 
 
-            // === AUTOPLAY KARUZELI NA URZĄDZENIACH MOBILNYCH ===
-            useEffect(() => {
-                if (window.innerWidth >= 1024 || isUserInteracting || isLocked) return;
-
-                const carousel = carouselRef.current;
-                if (!carousel) return;
-
-                const intervalId = setInterval(() => {
-                    const isAtEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10;
-                    if (isAtEnd) {
-                        carousel.scrollTo({ left: 0, behavior: 'smooth' });
-                    } else {
-                        const scrollAmount = window.innerWidth * 0.85; 
-                        carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                    }
-                }, 3000);
-
-                return () => clearInterval(intervalId);
-            }, [isUserInteracting, isLocked]);
-
-            // === FUNKCJA POBIERANIA DANYCH Z GUS/MF ===
             const handleNipChange = async (e) => {
                 const nipValue = e.target.value.replace(/\D/g, ''); 
                 setFormData(prev => ({ ...prev, nip: nipValue }));
@@ -339,24 +293,6 @@
                 setIsSubmitting(false);
             };
 
-            const handleTopSubmit = async (e) => {
-                e.preventDefault();
-                setTopIsSubmitting(true);
-                try {
-                    const response = await sendEmailJS({
-                        name: topFormData.name,
-                        company: topFormData.company,
-                        email: topFormData.email,
-                        phone: topFormData.phone
-                    });
-                    if (response.ok) {
-                        setTopFormStatus('Dziękujemy! Skontaktujemy się z Tobą najszybciej jak to możliwe w celu rezerwacji ze zniżką.');
-                        setTopFormData({ name: '', company: '', email: '', phone: '', consent: false });
-                    } else { setTopFormStatus('Wystąpił problem z serwerem poczty. Spróbuj ponownie później.'); }
-                } catch (error) { setTopFormStatus('Wystąpił błąd. Sprawdź połączenie z internetem.'); }
-                setTopIsSubmitting(false);
-            };
-
             const closeMenu = () => setMobileMenuOpen(false);
 
             return (
@@ -374,7 +310,6 @@
                                 </p>
                             </div>
                             
-                            {/* Panel Dewelopera */}
                             <div className="fixed bottom-4 right-4 flex flex-col items-end gap-2">
                                 {showDevInput && (
                                     <input 
@@ -404,25 +339,22 @@
                         <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'py-3 md:py-4 bg-white/95 backdrop-blur-xl border-b border-black/10 shadow-sm' : 'py-4 md:py-8 bg-transparent'}`}>
                             <div className="w-full px-4 md:px-12 flex justify-between items-center max-w-[1800px] mx-auto relative">
                                 
-                                {/* Lewe menu (ukryte na małych ekranach) */}
                                 <div className="hidden lg:flex gap-12 text-xs font-black uppercase tracking-[0.2em] text-zinc-500 items-center">
                                     <a href="#o-wydarzeniu" className="hover:text-black hover:-translate-y-1 transition-all">O Wydarzeniu</a>
                                     <a href="#dla-kogo" className="hover:text-black hover:-translate-y-1 transition-all">Dla Kogo</a>
                                     <a href="#informacje" className="hover:text-black hover:-translate-y-1 transition-all">Data & Miejsce</a>
                                 </div>
 
-                                {/* Hamburger Menu Mobile */}
                                 <div className="lg:hidden flex-1">
                                     <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 -ml-2 text-black z-50 relative">
                                         <Icon name={mobileMenuOpen ? "x" : "menu"} size={28} />
                                     </button>
                                 </div>
 
-                                {/* Logo i nazwa po prawej stronie */}
                                 <div className="flex items-center gap-3 md:gap-4 ml-auto z-50 relative">
                                     <span className="font-grotesk font-black text-sm sm:text-lg md:text-2xl tracking-tighter uppercase text-right leading-none">Baltic Expo<br/>Estate</span>
                                     <a href="#" className={`transition-all duration-500 transform hover:scale-105 origin-right flex-shrink-0 ${scrolled ? 'h-8 md:h-12' : 'h-10 md:h-16'}`}>
-                                        <img src="https://i.imgur.com/qQ1EVoE.png" alt="Baltic Expo Estate Logo" className="h-full w-auto object-contain filter invert drop-shadow-xl" />
+                                        <img src="https://i.imgur.com/teVTDYr.png" alt="Baltic Expo Estate Logo" className="h-full w-auto object-contain drop-shadow-xl" />
                                     </a>
                                 </div>
                                 
@@ -435,7 +367,6 @@
                                 <a href="#o-wydarzeniu" onClick={closeMenu} className="hover:text-zinc-500">O Wydarzeniu</a>
                                 <a href="#dla-kogo" onClick={closeMenu} className="hover:text-zinc-500">Dla Kogo</a>
                                 <a href="#informacje" onClick={closeMenu} className="hover:text-zinc-500">Data & Miejsce</a>
-                                <a href="#rejestracja" onClick={closeMenu} className="mt-8 bg-black text-white py-4 px-8 text-sm">Zostań Wystawcą</a>
                             </div>
                         </div>
 
@@ -449,13 +380,14 @@
 
                             <div className="relative z-10 w-full px-4 md:px-12 max-w-[1800px] mx-auto grid lg:grid-cols-12 gap-12 lg:gap-8 items-center reveal reveal-up">
                                 
-                                <div className="lg:col-span-7 pt-10 lg:pt-0">
-                                    <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
-                                        <div className="w-8 md:w-12 h-[2px] bg-black"></div>
-                                        <p className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em] md:tracking-[0.4em]">24.05.2026 r. • 11:00 - 18:00</p>
+                                <div className="lg:col-span-6 xl:col-span-7 pt-10 lg:pt-0">
+                                    {/* MOCNA, WIDOCZNA DATA */}
+                                    <div className="inline-flex items-center gap-3 md:gap-4 mb-6 md:mb-8 bg-black text-white px-4 py-2 md:px-6 md:py-3 border-l-4 border-zinc-400">
+                                        <Icon name="calendar" size={20} className="md:w-6 md:h-6" />
+                                        <p className="text-sm md:text-lg font-black uppercase tracking-[0.1em] md:tracking-[0.2em]">24 Maja 2026 r. • 11:00 - 18:00</p>
                                     </div>
                                     
-                                    <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-[6.5rem] font-grotesk font-black tracking-tighter leading-[0.95] md:leading-[0.9] uppercase mb-6 md:mb-8 mix-blend-difference text-black break-words">
+                                    <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-[6rem] xl:text-[6.5rem] font-grotesk font-black tracking-tighter leading-[0.95] md:leading-[0.9] uppercase mb-6 md:mb-8 mix-blend-difference text-black break-words">
                                         Bałtyckie Targi <br />
                                         <span className="text-outline">Nieruchomości</span> <br />
                                         <span className="text-2xl sm:text-3xl md:text-5xl lg:text-[4rem]">EDYCJA I</span>
@@ -466,51 +398,75 @@
                                     </div>
                                 </div>
 
-                                <div className="lg:col-span-5 flex justify-center lg:justify-end">
-                                    <div className="w-full max-w-md bg-white border-2 border-black p-5 md:p-8 shadow-[6px_6px_0px_0px_rgba(5,5,5,1)] md:shadow-[10px_10px_0px_0px_rgba(5,5,5,1)] relative overflow-hidden">
-                                        <h2 className="text-xl md:text-2xl font-grotesk font-black mb-2 uppercase leading-tight">Zarezerwuj przestrzeń i zyskaj zabudowę za 0 zł</h2>
-                                        <p className="text-xs md:text-sm text-zinc-500 mb-6 font-medium">Zostaw dane, a my skontaktujemy się z Tobą z ofertą specjalną.</p>
+                                <div className="lg:col-span-6 xl:col-span-5 flex justify-center lg:justify-end">
+                                    {/* FORMULARZ BEZ RAMKI */}
+                                    <div className="w-full max-w-md xl:max-w-lg bg-white/90 backdrop-blur-sm p-5 md:p-8 md:px-10 relative overflow-hidden">
+                                        <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
+                                            <div className="w-6 md:w-8 h-[2px] bg-black"></div>
+                                            <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] md:tracking-[0.3em]">Zostań Wystawcą</p>
+                                        </div>
                                         
-                                        {topFormStatus ? (
-                                            <div className="bg-green-50 text-green-800 p-4 border border-green-200 font-bold text-xs md:text-sm relative z-10">
-                                                {topFormStatus}
+                                        <h2 className="text-3xl md:text-4xl font-grotesk font-black mb-3 md:mb-4 uppercase leading-tight tracking-tighter">Zarezerwuj<br/>Przestrzeń.</h2>
+                                        <p className="text-xs md:text-sm text-zinc-500 mb-6 font-medium leading-relaxed">Skontaktuj się z nami i zapytaj o szczegóły oferty, dostępność stoisk oraz możliwości promocji Twojej firmy.</p>
+                                        
+                                        {formStatus ? (
+                                            <div className="bg-black text-white p-6 md:p-8 border border-black font-medium text-base md:text-lg leading-relaxed relative overflow-hidden reveal reveal-scale active">
+                                                <div className="absolute -right-10 -bottom-10 opacity-10"><Icon name="check-circle" size={100} className="md:w-[120px] md:h-[120px]" /></div>
+                                                <Icon name="check-circle" className="text-white mb-4" size={30} />
+                                                <p className="relative z-10">{formStatus}</p>
                                             </div>
                                         ) : (
-                                            <form onSubmit={handleTopSubmit} className="space-y-3 relative z-10">
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                                                    <div className="input-group mb-0">
-                                                        <input type="text" id="topName" required value={topFormData.name} onChange={(e) => setTopFormData({...topFormData, name: e.target.value})} placeholder=" " className="input-premium py-2 text-sm" />
-                                                        <label htmlFor="topName" className="input-label">Imię</label>
-                                                    </div>
-                                                    <div className="input-group mb-0">
-                                                        <input type="text" id="topCompany" required value={topFormData.company} onChange={(e) => setTopFormData({...topFormData, company: e.target.value})} placeholder=" " className="input-premium py-2 text-sm" />
-                                                        <label htmlFor="topCompany" className="input-label">Nazwa firmy</label>
-                                                    </div>
+                                            <form onSubmit={handleSubmit} className="space-y-3 relative z-10">
+                                                <div className="input-group mb-0">
+                                                    <input 
+                                                        type="text" 
+                                                        id="nip" 
+                                                        maxLength="10"
+                                                        value={formData.nip} 
+                                                        onChange={handleNipChange} 
+                                                        placeholder=" " 
+                                                        className="input-premium font-mono py-2 text-sm" 
+                                                    />
+                                                    <label htmlFor="nip" className="input-label flex items-center gap-2">
+                                                        NIP Firmy (opcjonalnie)
+                                                        {isFetchingNip && <span className="text-black font-bold text-[10px] animate-pulse">(Pobieranie...)</span>}
+                                                    </label>
                                                 </div>
-                                                
+
+                                                <div className="input-group mb-0">
+                                                    <input 
+                                                        type="text" 
+                                                        id="company" 
+                                                        required 
+                                                        value={formData.companyName} 
+                                                        onChange={(e) => setFormData({...formData, companyName: e.target.value})} 
+                                                        placeholder=" " 
+                                                        className={`input-premium transition-opacity duration-300 py-2 text-sm ${isFetchingNip ? 'opacity-40' : 'opacity-100'}`} 
+                                                    />
+                                                    <label htmlFor="company" className="input-label">Pełna nazwa firmy</label>
+                                                </div>
+
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                                     <div className="input-group mb-0">
-                                                        <input type="email" id="topEmail" required value={topFormData.email} onChange={(e) => setTopFormData({...topFormData, email: e.target.value})} placeholder=" " className="input-premium py-2 text-sm" />
-                                                        <label htmlFor="topEmail" className="input-label">E-mail</label>
+                                                        <input type="text" id="name" required value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder=" " className="input-premium py-2 text-sm" />
+                                                        <label htmlFor="name" className="input-label">Imię i Nazwisko</label>
                                                     </div>
                                                     <div className="input-group mb-0">
-                                                        <input type="tel" id="topPhone" required value={topFormData.phone} onChange={(e) => setTopFormData({...topFormData, phone: e.target.value})} placeholder=" " className="input-premium py-2 text-sm" />
-                                                        <label htmlFor="topPhone" className="input-label">Telefon</label>
+                                                        <input type="tel" id="phone" required value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} placeholder=" " className="input-premium py-2 text-sm" />
+                                                        <label htmlFor="phone" className="input-label">Telefon komórkowy</label>
                                                     </div>
                                                 </div>
 
-                                                <label className="flex items-start gap-3 mt-4 cursor-pointer group">
-                                                    <div className="relative flex items-center justify-center mt-1 sm:mt-0.5 shrink-0">
-                                                        <input type="checkbox" required checked={topFormData.consent} onChange={(e) => setTopFormData({...topFormData, consent: e.target.checked})} className="peer appearance-none w-4 h-4 border-2 border-black rounded-sm checked:bg-black transition-colors" />
-                                                        <Icon name="check" size={12} className="text-white absolute opacity-0 peer-checked:opacity-100 pointer-events-none" />
-                                                    </div>
-                                                    <span className="text-[10px] sm:text-xs text-zinc-500 font-medium group-hover:text-black transition-colors leading-relaxed">
-                                                        Wyrażam zgodę na otrzymywanie informacji handlowych drogą elektroniczną oraz kontakt w celu przedstawienia oferty.
+                                                <div className="input-group mb-0">
+                                                    <input type="email" id="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder=" " className="input-premium py-2 text-sm" />
+                                                    <label htmlFor="email" className="input-label">Służbowy e-mail</label>
+                                                </div>
+
+                                                <button type="submit" disabled={isSubmitting} className="w-full bg-black text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all mt-4 disabled:bg-zinc-400 disabled:cursor-not-allowed group flex justify-center items-center gap-2">
+                                                    <span className="relative z-10 flex items-center gap-2">
+                                                        {isSubmitting ? 'Wysyłanie...' : 'Odbierz Ofertę'}
+                                                        {!isSubmitting && <Icon name="download" size={14} className="group-hover:-translate-y-1 transition-transform" />}
                                                     </span>
-                                                </label>
-
-                                                <button type="submit" disabled={topIsSubmitting} className="w-full bg-black text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all mt-6 disabled:bg-zinc-400 disabled:cursor-not-allowed">
-                                                    {topIsSubmitting ? 'Wysyłanie...' : 'Zarezerwuj'}
                                                 </button>
                                             </form>
                                         )}
@@ -523,22 +479,29 @@
                         <Ticker className="-mt-[1px]" />
 
                         {/* O WYDARZENIU */}
-                        <section id="o-wydarzeniu" className="py-16 md:py-24 px-4 md:px-12 max-w-[1800px] mx-auto border-b border-zinc-200 overflow-hidden">
-                            <div className="grid lg:grid-cols-2 gap-10 md:gap-16 reveal reveal-up items-center">
-                                <div>
-                                    <h2 className="text-3xl md:text-5xl font-grotesk font-black mb-6 md:mb-8 leading-tight">Największe wydarzenie nieruchomościowe w regionie.</h2>
-                                    <p className="text-lg md:text-xl text-zinc-600 mb-6 leading-relaxed">Już 24 maja 2026 roku Hala Gryfia w Słupsku stanie się centrum rynku nieruchomości, inwestycji i nowoczesnego budownictwa. Tworzymy wydarzenie, które połączy kluczowych przedstawicieli branży i przyciągnie setki osób aktywnie poszukujących nieruchomości oraz sprawdzonych partnerów biznesowych.</p>
-                                    <p className="text-lg md:text-xl text-zinc-600 leading-relaxed font-bold">Przestrzeń spotkań, inspiracji i realnych możliwości rozwoju biznesu.</p>
+                        <section id="o-wydarzeniu" className="pt-16 md:pt-24 pb-8 px-4 md:px-12 max-w-[1800px] mx-auto overflow-hidden">
+                            <div className="max-w-4xl mx-auto text-center reveal reveal-up">
+                                <h2 className="text-3xl md:text-5xl font-grotesk font-black mb-6 md:mb-8 leading-tight">Największe wydarzenie nieruchomościowe w regionie.</h2>
+                                <p className="text-lg md:text-xl text-zinc-600 leading-relaxed">Już 24 maja 2026 roku Hala Gryfia w Słupsku stanie się centrum rynku nieruchomości, inwestycji i nowoczesnego budownictwa. Tworzymy wydarzenie, które połączy kluczowych przedstawicieli branży i przyciągnie setki osób aktywnie poszukujących nieruchomości oraz sprawdzonych partnerów biznesowych.</p>
+                            </div>
+                        </section>
+
+                        {/* SEKCJA ZDJĘĆ Z FILTREM (DODANA ZGODNIE Z PROMPTEM) */}
+                        <section className="pb-16 md:pb-24 px-4 md:px-12 max-w-[1800px] mx-auto overflow-hidden">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 reveal reveal-up">
+                                {/* Pierwsze zdjęcie */}
+                                <div className="aspect-[16/9] md:aspect-[4/3] overflow-hidden border border-black group">
+                                    <img 
+                                        src="https://i.imgur.com/ZI1NOkY.png" 
+                                        alt="Bałtycki krajobraz i architektura 1" 
+                                        className="w-full h-full object-cover filter grayscale brightness-[0.85] contrast-[1.1] transition-all duration-700 group-hover:filter-none" />
                                 </div>
-                                <div className="space-y-8 md:space-y-12">
-                                    <div className="border-l-4 border-black pl-4 md:pl-6">
-                                        <h3 className="text-xl md:text-2xl font-black font-grotesk mb-3">Twórz przyszłość rynku</h3>
-                                        <p className="text-sm md:text-base text-zinc-600">Inspirując się największymi wydarzeniami branżowymi, stawiamy na połączenie sprzedaży, wiedzy i trendów. Targi będą miejscem prezentacji nowoczesnych inwestycji i innowacyjnych rozwiązań.</p>
-                                    </div>
-                                    <div className="border-l-4 border-black pl-4 md:pl-6">
-                                        <h3 className="text-xl md:text-2xl font-black font-grotesk mb-3">Networking dla sprzedaży</h3>
-                                        <p className="text-sm md:text-base text-zinc-600">Targi to przestrzeń spotkań branży, miejsce, gdzie nawiązuje się relacje. Spotkasz tu inwestorów, klientów indywidualnych oraz partnerów do współpracy.</p>
-                                    </div>
+                                {/* Drugie zdjęcie */}
+                                <div className="aspect-[16/9] md:aspect-[4/3] overflow-hidden border border-black group mt-8 md:mt-20">
+                                    <img 
+                                        src="https://i.imgur.com/O6S1Mzc.jpeg" 
+                                        alt="Bałtycki krajobraz i architektura 2" 
+                                        className="w-full h-full object-cover filter grayscale brightness-[0.85] contrast-[1.1] transition-all duration-700 group-hover:filter-none" />
                                 </div>
                             </div>
                         </section>
@@ -570,8 +533,8 @@
                         </section>
 
                         {/* DLA KOGO */}
-                        <section id="dla-kogo" className="py-20 md:py-40 px-4 md:px-12 max-w-[1800px] mx-auto overflow-hidden">
-                            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-16 md:mb-24 reveal reveal-up gap-8 md:gap-12">
+                        <section id="dla-kogo" className="py-20 md:py-32 px-4 md:px-12 max-w-[1800px] mx-auto overflow-hidden">
+                            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end reveal reveal-up gap-8 md:gap-12">
                                 <div className="max-w-3xl">
                                     <h2 className="text-4xl md:text-6xl lg:text-7xl font-grotesk font-black tracking-tighter mb-4 md:mb-8 leading-tight">Łączymy sektor w <span className="relative inline-block">jednym<div className="absolute bottom-0 md:bottom-1 left-0 w-full h-2 md:h-3 bg-black -z-10 transform -rotate-1"></div></span> miejscu.</h2>
                                 </div>
@@ -589,34 +552,6 @@
                                     </ul>
                                 </div>
                             </div>
-                            
-                            <div 
-                                ref={carouselRef}
-                                className="flex lg:grid lg:grid-cols-5 overflow-x-auto snap-x snap-mandatory hide-scrollbar border-t border-l border-black smooth-scroll"
-                                onTouchStart={() => setIsUserInteracting(true)}
-                                onTouchEnd={() => {
-                                    setTimeout(() => setIsUserInteracting(false), 3000); 
-                                }}
-                                onMouseEnter={() => setIsUserInteracting(true)}
-                                onMouseLeave={() => setIsUserInteracting(false)}
-                            >
-                                {AUDIENCE.map((item, idx) => (
-                                    <div key={item.id} className="w-[85vw] sm:w-[45vw] lg:w-auto shrink-0 snap-center group relative border-r border-b border-black h-[280px] lg:h-auto lg:aspect-square p-6 md:p-8 flex flex-col justify-between overflow-hidden cursor-pointer hover:bg-black hover:text-white transition-all duration-500 reveal reveal-scale" style={{transitionDelay: `${(idx % 5) * 50}ms`}}>
-                                        <div className="absolute top-4 right-4 text-zinc-200 font-bold text-lg md:text-xl font-grotesk group-hover:text-zinc-800 transition-colors">
-                                            {item.id < 10 ? `0${item.id}` : item.id}
-                                        </div>
-                                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-black flex items-center justify-center group-hover:border-white group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shrink-0">
-                                            <Icon name={item.icon} size={24} className="md:w-7 md:h-7" />
-                                        </div>
-                                        <div className="mt-4">
-                                            <h3 className="font-black text-xl md:text-2xl uppercase tracking-tight mb-2 font-grotesk lg:group-hover:-translate-y-1 transition-transform duration-300 leading-none">{item.title}</h3>
-                                            <p className="text-sm text-zinc-500 group-hover:text-zinc-400 font-medium lg:translate-y-4 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100 transition-all duration-300 md:delay-75">
-                                                {item.desc}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
                         </section>
 
                         {/* DATA I MIEJSCE */}
@@ -628,7 +563,7 @@
                                 <div className="grid lg:grid-cols-2 gap-12 md:gap-20 items-center">
                                     <div className="reveal reveal-left">
                                         <h2 className="text-5xl md:text-7xl lg:text-8xl font-grotesk font-black uppercase leading-[0.9] mb-8 md:mb-12">
-                                            Centrum <br/>Wydarzeń.
+                                            Miejsce <br/>Targów.
                                         </h2>
                                         <div className="w-16 md:w-24 h-2 bg-white mb-8 md:mb-12 transform origin-left transition-transform hover:scale-x-150 duration-500"></div>
                                         <p className="text-lg md:text-2xl text-zinc-400 font-light max-w-xl">
@@ -639,7 +574,7 @@
                                     <div className="space-y-8 md:space-y-12 reveal reveal-right">
                                         <div className="border-l-2 border-white pl-6 md:pl-8 py-2 md:py-4">
                                             <p className="text-xs md:text-sm font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-zinc-500 mb-2 md:mb-4">Data Wydarzenia</p>
-                                            <p className="text-3xl sm:text-4xl md:text-6xl font-black font-grotesk">24.05.2026</p>
+                                            <p className="text-3xl sm:text-4xl md:text-6xl font-black font-grotesk text-white">24 Maja 2026</p>
                                             <p className="text-lg md:text-xl text-zinc-400 mt-2 font-light">Niedziela, 11:00 - 18:00</p>
                                         </div>
                                         <div className="block border-l-2 border-zinc-800 pl-6 md:pl-8 py-2 md:py-4 group hover:border-white transition-colors duration-500 cursor-pointer">
@@ -654,132 +589,35 @@
                             </div>
                         </section>
 
-                        <Ticker direction="right" dark={true} className="border-zinc-800" />
+                        {/* Ticker dolny */}
+                        <Ticker direction="right" className="border-t-0 -mt-[1px]" />
 
-                        {/* FORMULARZ I MAPA */}
-                        <section id="rejestracja" className="py-20 md:py-40 px-4 md:px-12 max-w-[1800px] mx-auto overflow-hidden">
-                            <div className="grid lg:grid-cols-2 gap-16 lg:gap-32">
-                                
-                                {/* FORMULARZ Z WYSZUKIWANIEM NIP */}
-                                <div className="reveal reveal-up order-2 lg:order-1">
-                                    <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
-                                        <div className="w-8 md:w-12 h-[2px] bg-black"></div>
-                                        <p className="text-xs md:text-sm font-black uppercase tracking-[0.2em] md:tracking-[0.4em]">Zostań Wystawcą</p>
-                                    </div>
-                                    <h2 className="text-4xl md:text-6xl lg:text-7xl font-grotesk font-black mb-6 md:mb-8 tracking-tighter leading-tight">Zarezerwuj <br/>Przestrzeń.</h2>
-                                    
-                                    <div className="mb-8 md:mb-12">
-                                        <h3 className="text-lg md:text-xl font-bold mb-2">Zapytaj o stoisko</h3>
-                                        <p className="text-sm md:text-base text-zinc-600 mb-6">Skontaktuj się z nami i zapytaj o szczegóły oferty, dostępność stoisk oraz możliwości promocji Twojej firmy. Liczba miejsc jest ograniczona.</p>
-                                        <p className="text-sm md:text-base font-black font-grotesk uppercase border-l-4 border-black pl-4">Zbuduj swoją przewagę. Pozyskaj klientów. Bądź częścią najważniejszego wydarzenia w regionie.</p>
-                                    </div>
-                                    
-                                    {formStatus ? (
-                                        <div className="bg-black text-white p-8 md:p-12 border border-black font-medium text-lg md:text-xl leading-relaxed relative overflow-hidden reveal reveal-scale active">
-                                            <div className="absolute -right-10 -bottom-10 opacity-10"><Icon name="check-circle" size={150} className="md:w-[200px] md:h-[200px]" /></div>
-                                            <Icon name="check-circle" className="text-white mb-6" size={40} className="md:w-12 md:h-12" />
-                                            <p className="relative z-10">{formStatus}</p>
-                                        </div>
-                                    ) : (
-                                        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-                                            <div className="input-group">
-                                                <input 
-                                                    type="text" 
-                                                    id="nip" 
-                                                    maxLength="10"
-                                                    value={formData.nip} 
-                                                    onChange={handleNipChange} 
-                                                    placeholder=" " 
-                                                    className="input-premium font-mono" 
-                                                />
-                                                <label htmlFor="nip" className="input-label flex items-center gap-2">
-                                                    NIP Firmy (opcjonalnie)
-                                                    {isFetchingNip && <span className="text-black font-bold text-[10px] animate-pulse">(Pobieranie...)</span>}
-                                                </label>
-                                            </div>
-
-                                            <div className="input-group">
-                                                <input 
-                                                    type="text" 
-                                                    id="company" 
-                                                    required 
-                                                    value={formData.companyName} 
-                                                    onChange={(e) => setFormData({...formData, companyName: e.target.value})} 
-                                                    placeholder=" " 
-                                                    className={`input-premium transition-opacity duration-300 ${isFetchingNip ? 'opacity-40' : 'opacity-100'}`} 
-                                                />
-                                                <label htmlFor="company" className="input-label">Pełna nazwa firmy</label>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                                                <div className="input-group">
-                                                    <input type="text" id="name" required value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder=" " className="input-premium" />
-                                                    <label htmlFor="name" className="input-label">Imię i Nazwisko</label>
-                                                </div>
-                                                <div className="input-group">
-                                                    <input type="tel" id="phone" required value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} placeholder=" " className="input-premium" />
-                                                    <label htmlFor="phone" className="input-label">Telefon komórkowy</label>
-                                                </div>
-                                            </div>
-
-                                            <div className="input-group">
-                                                <input type="email" id="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder=" " className="input-premium" />
-                                                <label htmlFor="email" className="input-label">Służbowy adres e-mail</label>
-                                            </div>
-
-                                            <button type="submit" disabled={isSubmitting} className="w-full bg-black text-white py-5 md:py-6 text-xs md:text-sm font-black uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all mt-2 flex justify-center items-center gap-3 md:gap-4 group overflow-hidden relative disabled:bg-zinc-400 disabled:cursor-not-allowed">
-                                                <span className="relative z-10 flex items-center gap-3 md:gap-4">
-                                                    {isSubmitting ? 'Wysyłanie...' : 'Odbierz Ofertę'}
-                                                    {!isSubmitting && <Icon name="download" size={16} className="md:w-[18px] md:h-[18px] group-hover:-translate-y-1 transition-transform" />}
-                                                </span>
-                                            </button>
-                                        </form>
-                                    )}
-                                </div>
-
-                                {/* MAPA HALI */}
-                                <div id="plan-hali" className="reveal reveal-left flex flex-col h-full order-1 lg:order-2">
-                                    <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
+                        {/* PLAN HALI */}
+                        <section id="plan-hali" className="py-20 md:py-40 px-4 md:px-12 max-w-[1800px] mx-auto overflow-hidden">
+                            <div className="max-w-5xl mx-auto reveal reveal-up flex flex-col h-full">
+                                <div className="text-center mb-10 md:mb-16">
+                                    <div className="flex items-center justify-center gap-3 md:gap-4 mb-4 md:mb-6">
                                         <div className="w-8 md:w-12 h-[2px] bg-black"></div>
                                         <p className="text-xs md:text-sm font-black uppercase tracking-[0.2em] md:tracking-[0.4em]">Plan Hali</p>
+                                        <div className="w-8 md:w-12 h-[2px] bg-black"></div>
                                     </div>
-                                    <h2 className="text-4xl md:text-6xl lg:text-7xl font-grotesk font-black mb-6 md:mb-8 tracking-tighter leading-tight">Architektura.</h2>
+                                    <h2 className="text-4xl md:text-6xl lg:text-7xl font-grotesk font-black mb-6 md:mb-8 tracking-tighter leading-tight">Mapa Targów.</h2>
+                                    <p className="text-base md:text-lg text-zinc-600 mb-4 md:mb-6 max-w-2xl mx-auto">Stoiska od 4 m² do 20 m² – dopasowane do każdej firmy.</p>
                                     
-                                    <div className="mb-6 md:mb-8">
-                                        <h3 className="text-xl md:text-2xl font-black font-grotesk mb-2 md:mb-3">Elastyczne przestrzenie</h3>
-                                        <p className="text-base md:text-lg text-zinc-600 mb-4 md:mb-6">Stoiska od 4 m² do 20 m² – dopasowane do każdej firmy.</p>
-                                        
-                                        <div className="bg-zinc-100 p-4 md:p-6 border-l-4 border-black">
-                                            <h3 className="text-lg md:text-xl font-black font-grotesk mb-2">Oferta specjalna</h3>
-                                            <p className="text-sm md:text-base text-zinc-700">Dla pierwszych firm przygotowaliśmy wyjątkowy bonus – zabudowa stoiska w cenie.</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex-1 min-h-[300px] md:min-h-[400px] bg-[#0a192f] text-white p-4 md:p-8 relative border-4 border-black font-mono overflow-hidden flex flex-col group">
-                                        <div className="absolute inset-0 bg-architect-grid opacity-20"></div>
-                                        <div className="absolute left-0 top-0 w-full h-[150px] md:h-[200px] bg-gradient-to-b from-transparent via-blue-400/10 to-blue-400/30 border-b border-blue-400/50 animate-scanline z-0 pointer-events-none"></div>
-
-                                        <div className="relative z-10 w-full text-center text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.5em] border-b border-white/20 pb-2 md:pb-4 mb-4 md:mb-8 text-blue-300 break-words">
-                                            Scena Główna / Prelekcje
-                                        </div>
-                                        
-                                        <div className="relative z-10 flex-1 grid grid-cols-3 sm:grid-cols-4 gap-2 md:gap-4">
-                                            {[...Array(12)].map((_, i) => (
-                                                <div key={i} className={`border border-blue-400/30 bg-blue-500/5 hover:bg-blue-400/40 transition-colors duration-300 flex flex-col items-center justify-center cursor-crosshair group/item relative backdrop-blur-sm aspect-square sm:aspect-auto ${i >= 9 ? 'hidden sm:flex' : 'flex'}`}>
-                                                    <span className="text-blue-300 font-bold text-sm md:text-lg mb-1 group-hover/item:text-white lg:group-hover/item:scale-110 transition-all">S-{i+1}</span>
-                                                    <span className="text-[8px] md:text-[10px] text-blue-400 lg:opacity-0 lg:group-hover/item:opacity-100 transition-opacity">12 m²</span>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        <div className="relative z-10 w-full text-center text-[8px] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.5em] border-t border-white/20 pt-2 md:pt-4 mt-4 md:mt-8 text-blue-300 flex justify-between items-center px-1 md:px-4">
-                                            <span>Wejście A</span>
-                                            <span className="bg-blue-500/20 px-1 md:px-2 py-1 border border-blue-400/30">1:100</span>
-                                            <span>Wejście B</span>
-                                        </div>
+                                    <div className="bg-zinc-100 p-4 md:p-6 border-l-4 border-black inline-block text-left max-w-2xl mx-auto">
+                                        <h3 className="text-lg md:text-xl font-black font-grotesk mb-2">Oferta specjalna</h3>
+                                        <p className="text-sm md:text-base text-zinc-700">Dla pierwszych firm przygotowaliśmy wyjątkowy bonus – zabudowa stoiska w cenie.</p>
                                     </div>
                                 </div>
-
+                                
+                                {/* Kontener ze zdjęciem mapy */}
+                                <div className="w-full relative border-4 border-black overflow-hidden shadow-2xl group bg-white">
+                                    <img 
+                                        src="https://i.imgur.com/7mlyN25.png" 
+                                        alt="Szczegółowy Plan Hali - Bałtyckie Targi Nieruchomości" 
+                                        className="w-full h-auto object-contain transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                                    />
+                                </div>
                             </div>
                         </section>
 
@@ -789,11 +627,11 @@
                                 <div className="grid lg:grid-cols-2 gap-12 md:gap-20 mb-20 md:mb-32">
                                     <div>
                                         <h3 className="text-3xl sm:text-4xl md:text-5xl font-grotesk font-black mb-4 md:mb-6 leading-tight">Skontaktuj się z <br/>Biurem Targów.</h3>
-                                        <p className="text-zinc-400 text-base md:text-lg max-w-md">Zbuduj swoją przewagę. Pozyskaj klientów. Bądź częścią najważniejszego wydarzenia nieruchomościowego na Pomorzu.</p>
+                                        <p className="text-zinc-400 text-base md:text-lg max-w-md">Zbuduj swoją przewagę. Pozyskaj klientów. Bądź częścią najważnement wydarzenia nieruchomościowego na Pomorzu.</p>
                                     </div>
                                     
                                     <div className="flex flex-col justify-center space-y-6 md:space-y-8 text-xl sm:text-2xl md:text-4xl font-light">
-                                        <a href="mailto:wystawcy@balticexpo.pl" className="flex items-center gap-4 md:gap-6 hover:text-zinc-500 transition-colors border-b border-zinc-800 pb-6 md:pb-8 group break-all">
+                                        <a href="mailto:kontakt@balticexpo.pl" className="flex items-center gap-4 md:gap-6 hover:text-zinc-500 transition-colors border-b border-zinc-800 pb-6 md:pb-8 group break-all">
                                             <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-zinc-800 flex shrink-0 items-center justify-center group-hover:bg-white group-hover:border-white group-hover:text-black transition-all duration-300">
                                                 <Icon name="mail" size={24} className="md:w-7 md:h-7" />
                                             </div>
