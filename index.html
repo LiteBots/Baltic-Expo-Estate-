@@ -131,11 +131,8 @@
         }
         .input-premium::placeholder { color: transparent; }
 
-        /* Ukrywanie paska przewijania dla karuzeli na telefonach */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Gładkie przewijanie karuzeli */
         .smooth-scroll { scroll-behavior: smooth; }
     </style>
 </head>
@@ -171,6 +168,49 @@
                 </div>
             </div>
         );
+
+        // Komponent sekcji "Miejsce Targów", aby można go było użyć dwukrotnie (na mobile w środku Hero, na desktopie pod spodem)
+        const LocationSection = ({ isMobile }) => {
+            const visibilityClass = isMobile ? 'block lg:hidden py-16' : 'hidden lg:block py-24 md:py-40';
+            const borderClass = isMobile ? 'border-y border-zinc-800 my-8' : 'border-b border-zinc-800';
+            const sectionId = isMobile ? 'informacje-mobile' : 'informacje';
+
+            return (
+                <section id={sectionId} className={`bg-black text-white relative overflow-hidden ${visibilityClass} ${borderClass}`}>
+                    <div className="absolute inset-0 bg-architect-grid opacity-10 filter invert"></div>
+                    <div className="hidden md:block absolute -right-20 -top-20 text-[20rem] lg:text-[30rem] font-grotesk font-black text-outline-white opacity-5 select-none animate-pulse-slow">BEE</div>
+
+                    <div className="max-w-[1800px] mx-auto px-4 md:px-12 relative z-10">
+                        <div className="grid lg:grid-cols-2 gap-12 md:gap-20 items-center">
+                            <div className="reveal reveal-left">
+                                <h2 className="text-5xl md:text-7xl lg:text-8xl font-grotesk font-black uppercase leading-[0.9] mb-8 md:mb-12">
+                                    Miejsce <br/>Targów.
+                                </h2>
+                                <div className="w-16 md:w-24 h-2 bg-white mb-8 md:mb-12 transform origin-left transition-transform hover:scale-x-150 duration-500"></div>
+                                <p className="text-lg md:text-2xl text-zinc-400 font-light max-w-xl">
+                                    Hala Gryfia w Słupsku to najnowocześniejszy obiekt wystawienniczy w regionie, gwarantujący doskonałą infrastrukturę.
+                                </p>
+                            </div>
+
+                            <div className="space-y-8 md:space-y-12 reveal reveal-right">
+                                <div className="border-l-2 border-white pl-6 md:pl-8 py-2 md:py-4">
+                                    <p className="text-xs md:text-sm font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-zinc-500 mb-2 md:mb-4">Data Wydarzenia</p>
+                                    <p className="text-3xl sm:text-4xl md:text-6xl font-black font-grotesk text-white">24 Maja 2026</p>
+                                    <p className="text-lg md:text-xl text-zinc-400 mt-2 font-light">Niedziela, 11:00 - 18:00</p>
+                                </div>
+                                <div className="block border-l-2 border-zinc-800 pl-6 md:pl-8 py-2 md:py-4 group hover:border-white transition-colors duration-500 cursor-pointer">
+                                    <p className="text-xs md:text-sm font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-zinc-500 mb-2 md:mb-4">Lokalizacja</p>
+                                    <p className="text-3xl sm:text-4xl md:text-6xl font-black font-grotesk lg:group-hover:translate-x-4 transition-transform duration-500">Hala Gryfia</p>
+                                    <p className="text-lg md:text-xl text-zinc-400 mt-2 font-light flex items-center gap-2 md:gap-3">
+                                        ul. Szczecińska 99, Słupsk <Icon name="external-link" size={18} className="hidden lg:block opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
 
         function App() {
             const [isLocked, setIsLocked] = useState(true);
@@ -366,22 +406,23 @@
                             <div className="flex flex-col gap-8 text-2xl font-black uppercase tracking-widest text-center">
                                 <a href="#o-wydarzeniu" onClick={closeMenu} className="hover:text-zinc-500">O Wydarzeniu</a>
                                 <a href="#dla-kogo" onClick={closeMenu} className="hover:text-zinc-500">Dla Kogo</a>
-                                <a href="#informacje" onClick={closeMenu} className="hover:text-zinc-500">Data & Miejsce</a>
+                                {/* WAŻNE: Na mobile linkujemy do mobilnego ID sekcji Miejsce Targów */}
+                                <a href="#informacje-mobile" onClick={closeMenu} className="hover:text-zinc-500">Data & Miejsce</a>
                             </div>
                         </div>
 
                         {/* HERO SECTION */}
-                        <section className="relative min-h-screen pt-[120px] md:pt-[160px] lg:pt-[200px] pb-12 md:pb-20 flex flex-col justify-center border-b border-black overflow-hidden bg-white">
+                        <section className="relative min-h-screen pt-[120px] md:pt-[160px] lg:pt-[200px] pb-12 md:pb-20 flex flex-col justify-center overflow-hidden bg-white">
                             <div className="absolute inset-0 bg-architect-grid opacity-60"></div>
                             
                             <div ref={heroTextRef} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none select-none z-0 transition-transform duration-100 ease-out">
                                 <h1 className="text-[30vw] md:text-[25vw] font-black font-grotesk text-zinc-100/80 leading-none mt-10 md:mt-20">2026</h1>
                             </div>
 
-                            <div className="relative z-10 w-full px-4 md:px-12 max-w-[1800px] mx-auto grid lg:grid-cols-12 gap-12 lg:gap-8 items-center reveal reveal-up">
+                            <div className="relative z-10 w-full px-4 md:px-12 max-w-[1800px] mx-auto grid lg:grid-cols-12 gap-8 lg:gap-8 items-center reveal reveal-up">
                                 
+                                {/* LEWA STRONA HERO - TEKST */}
                                 <div className="lg:col-span-6 xl:col-span-7 pt-10 lg:pt-0">
-                                    {/* MOCNA, WIDOCZNA DATA */}
                                     <div className="inline-flex items-center gap-3 md:gap-4 mb-6 md:mb-8 bg-black text-white px-4 py-2 md:px-6 md:py-3 border-l-4 border-zinc-400">
                                         <Icon name="calendar" size={20} className="md:w-6 md:h-6" />
                                         <p className="text-sm md:text-lg font-black uppercase tracking-[0.1em] md:tracking-[0.2em]">24 Maja 2026 r. • 11:00 - 18:00</p>
@@ -398,8 +439,13 @@
                                     </div>
                                 </div>
 
+                                {/* TYLKO MOBILE: MIEJSCE TARGÓW WSTRZYKNIĘTE POMIĘDZY TEKST A FORMULARZ */}
+                                <div className="col-span-full w-screen relative left-1/2 -translate-x-1/2 lg:hidden">
+                                    <LocationSection isMobile={true} />
+                                </div>
+
+                                {/* PRAWA STRONA HERO - FORMULARZ */}
                                 <div className="lg:col-span-6 xl:col-span-5 flex justify-center lg:justify-end">
-                                    {/* FORMULARZ BEZ RAMKI */}
                                     <div className="w-full max-w-md xl:max-w-lg bg-white/90 backdrop-blur-sm p-5 md:p-8 md:px-10 relative overflow-hidden">
                                         <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
                                             <div className="w-6 md:w-8 h-[2px] bg-black"></div>
@@ -476,7 +522,10 @@
                             </div>
                         </section>
 
-                        {/* SEKCJA ZDJĘĆ Z FILTREM PRZENIESIONA TUTAJ */}
+                        {/* TYLKO DESKTOP: MIEJSCE TARGÓW POD CAŁYM HERO */}
+                        <LocationSection isMobile={false} />
+
+                        {/* SEKCJA ZDJĘĆ Z FILTREM */}
                         <section className="pt-8 md:pt-12 pb-16 md:pb-24 px-4 md:px-12 max-w-[1800px] mx-auto overflow-hidden">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 reveal reveal-up">
                                 {/* Pierwsze zdjęcie */}
@@ -506,8 +555,37 @@
                             </div>
                         </section>
 
+                        {/* PLAN HALI */}
+                        <section id="plan-hali" className="py-20 md:py-32 px-4 md:px-12 max-w-[1800px] mx-auto overflow-hidden">
+                            <div className="max-w-5xl mx-auto reveal reveal-up flex flex-col h-full">
+                                <div className="text-center mb-10 md:mb-16">
+                                    <div className="flex items-center justify-center gap-3 md:gap-4 mb-4 md:mb-6">
+                                        <div className="w-8 md:w-12 h-[2px] bg-black"></div>
+                                        <p className="text-xs md:text-sm font-black uppercase tracking-[0.2em] md:tracking-[0.4em]">Plan Hali</p>
+                                        <div className="w-8 md:w-12 h-[2px] bg-black"></div>
+                                    </div>
+                                    <h2 className="text-4xl md:text-6xl lg:text-7xl font-grotesk font-black mb-6 md:mb-8 tracking-tighter leading-tight">Mapa Targów.</h2>
+                                    <p className="text-base md:text-lg text-zinc-600 mb-4 md:mb-6 max-w-2xl mx-auto">Stoiska od 4 m² do 20 m² – dopasowane do każdej firmy.</p>
+                                    
+                                    <div className="bg-zinc-100 p-4 md:p-6 border-l-4 border-black inline-block text-left max-w-2xl mx-auto">
+                                        <h3 className="text-lg md:text-xl font-black font-grotesk mb-2">Oferta specjalna</h3>
+                                        <p className="text-sm md:text-base text-zinc-700">Dla pierwszych firm przygotowaliśmy wyjątkowy bonus – zabudowa stoiska w cenie.</p>
+                                    </div>
+                                </div>
+                                
+                                {/* Kontener ze zdjęciem mapy */}
+                                <div className="w-full relative border-4 border-black overflow-hidden shadow-2xl group bg-white">
+                                    <img 
+                                        src="https://i.imgur.com/7mlyN25.png" 
+                                        alt="Szczegółowy Plan Hali - Bałtyckie Targi Nieruchomości" 
+                                        className="w-full h-auto object-contain transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                                    />
+                                </div>
+                            </div>
+                        </section>
+
                         {/* DLACZEGO WARTO */}
-                        <section className="py-16 md:py-24 bg-zinc-50 px-4 md:px-12 border-b border-zinc-200">
+                        <section className="py-16 md:py-24 bg-zinc-50 px-4 md:px-12 border-y border-zinc-200">
                             <div className="max-w-[1800px] mx-auto grid lg:grid-cols-2 gap-8 md:gap-16 reveal reveal-up">
                                 <div className="bg-white p-6 md:p-10 border border-zinc-200 shadow-sm">
                                     <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6">Pokaż swoją ofertę tam, gdzie są klienci</h2>
@@ -554,72 +632,8 @@
                             </div>
                         </section>
 
-                        {/* DATA I MIEJSCE */}
-                        <section id="informacje" className="bg-black text-white relative overflow-hidden py-24 md:py-40 border-y border-zinc-800">
-                            <div className="absolute inset-0 bg-architect-grid opacity-10 filter invert"></div>
-                            <div className="hidden md:block absolute -right-20 -top-20 text-[20rem] lg:text-[30rem] font-grotesk font-black text-outline-white opacity-5 select-none animate-pulse-slow">BEE</div>
-
-                            <div className="max-w-[1800px] mx-auto px-4 md:px-12 relative z-10">
-                                <div className="grid lg:grid-cols-2 gap-12 md:gap-20 items-center">
-                                    <div className="reveal reveal-left">
-                                        <h2 className="text-5xl md:text-7xl lg:text-8xl font-grotesk font-black uppercase leading-[0.9] mb-8 md:mb-12">
-                                            Miejsce <br/>Targów.
-                                        </h2>
-                                        <div className="w-16 md:w-24 h-2 bg-white mb-8 md:mb-12 transform origin-left transition-transform hover:scale-x-150 duration-500"></div>
-                                        <p className="text-lg md:text-2xl text-zinc-400 font-light max-w-xl">
-                                            Hala Gryfia w Słupsku to najnowocześniejszy obiekt wystawienniczy w regionie, gwarantujący doskonałą infrastrukturę.
-                                        </p>
-                                    </div>
-
-                                    <div className="space-y-8 md:space-y-12 reveal reveal-right">
-                                        <div className="border-l-2 border-white pl-6 md:pl-8 py-2 md:py-4">
-                                            <p className="text-xs md:text-sm font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-zinc-500 mb-2 md:mb-4">Data Wydarzenia</p>
-                                            <p className="text-3xl sm:text-4xl md:text-6xl font-black font-grotesk text-white">24 Maja 2026</p>
-                                            <p className="text-lg md:text-xl text-zinc-400 mt-2 font-light">Niedziela, 11:00 - 18:00</p>
-                                        </div>
-                                        <div className="block border-l-2 border-zinc-800 pl-6 md:pl-8 py-2 md:py-4 group hover:border-white transition-colors duration-500 cursor-pointer">
-                                            <p className="text-xs md:text-sm font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-zinc-500 mb-2 md:mb-4">Lokalizacja</p>
-                                            <p className="text-3xl sm:text-4xl md:text-6xl font-black font-grotesk lg:group-hover:translate-x-4 transition-transform duration-500">Hala Gryfia</p>
-                                            <p className="text-lg md:text-xl text-zinc-400 mt-2 font-light flex items-center gap-2 md:gap-3">
-                                                ul. Szczecińska 99, Słupsk <Icon name="external-link" size={18} className="hidden lg:block opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
                         {/* Ticker dolny */}
                         <Ticker direction="right" className="border-t-0 -mt-[1px]" />
-
-                        {/* PLAN HALI */}
-                        <section id="plan-hali" className="py-20 md:py-40 px-4 md:px-12 max-w-[1800px] mx-auto overflow-hidden">
-                            <div className="max-w-5xl mx-auto reveal reveal-up flex flex-col h-full">
-                                <div className="text-center mb-10 md:mb-16">
-                                    <div className="flex items-center justify-center gap-3 md:gap-4 mb-4 md:mb-6">
-                                        <div className="w-8 md:w-12 h-[2px] bg-black"></div>
-                                        <p className="text-xs md:text-sm font-black uppercase tracking-[0.2em] md:tracking-[0.4em]">Plan Hali</p>
-                                        <div className="w-8 md:w-12 h-[2px] bg-black"></div>
-                                    </div>
-                                    <h2 className="text-4xl md:text-6xl lg:text-7xl font-grotesk font-black mb-6 md:mb-8 tracking-tighter leading-tight">Mapa Targów.</h2>
-                                    <p className="text-base md:text-lg text-zinc-600 mb-4 md:mb-6 max-w-2xl mx-auto">Stoiska od 4 m² do 20 m² – dopasowane do każdej firmy.</p>
-                                    
-                                    <div className="bg-zinc-100 p-4 md:p-6 border-l-4 border-black inline-block text-left max-w-2xl mx-auto">
-                                        <h3 className="text-lg md:text-xl font-black font-grotesk mb-2">Oferta specjalna</h3>
-                                        <p className="text-sm md:text-base text-zinc-700">Dla pierwszych firm przygotowaliśmy wyjątkowy bonus – zabudowa stoiska w cenie.</p>
-                                    </div>
-                                </div>
-                                
-                                {/* Kontener ze zdjęciem mapy */}
-                                <div className="w-full relative border-4 border-black overflow-hidden shadow-2xl group bg-white">
-                                    <img 
-                                        src="https://i.imgur.com/7mlyN25.png" 
-                                        alt="Szczegółowy Plan Hali - Bałtyckie Targi Nieruchomości" 
-                                        className="w-full h-auto object-contain transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-                                    />
-                                </div>
-                            </div>
-                        </section>
 
                         {/* FOOTER */}
                         <footer className="bg-black text-white pt-20 md:pt-32 pb-8 md:pb-12 px-4 md:px-12 border-t border-zinc-900">
@@ -644,7 +658,6 @@
                                     <div>&copy; 2026 Bałtyckie Targi Nieruchomości. Wszelkie prawa zastrzeżone.</div>
                                     <div className="flex flex-wrap justify-center gap-4 md:gap-8">
                                         <a href="rule.html" className="hover:text-white transition-colors">Regulamin</a>
-                                       
                                     </div>
                                 </div>
                             </div>
