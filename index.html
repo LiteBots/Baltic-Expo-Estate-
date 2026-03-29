@@ -121,11 +121,15 @@
             padding: 1.25rem 0 0.5rem 0; font-size: 1rem; outline: none; transition: border-color 0.3s ease; border-radius: 0;
         }
         .input-premium:focus { border-bottom-color: #050505; }
+        
         .input-label {
             position: absolute; left: 0; top: 1.25rem; color: #a1a1aa; font-weight: 400; font-size: 0.95rem;
             pointer-events: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        
+        /* Dodana klasa .has-value zapewnia 100% pewności, że label odskoczy po wypełnieniu */
         .input-premium:focus ~ .input-label,
+        .input-premium.has-value ~ .input-label,
         .input-premium:not(:placeholder-shown) ~ .input-label {
             transform: translateY(-1.25rem); font-size: 0.7rem; font-weight: 700; color: #050505; text-transform: uppercase; letter-spacing: 0.1em;
         }
@@ -169,7 +173,7 @@
             </div>
         );
 
-        // Komponent sekcji "Miejsce Targów", aby można go było użyć dwukrotnie (na mobile w środku Hero, na desktopie pod spodem)
+        // Komponent sekcji "Miejsce Targów", aby można go było użyć dwukrotnie z odpowiednim stylowaniem
         const LocationSection = ({ isMobile }) => {
             const visibilityClass = isMobile ? 'block lg:hidden py-16' : 'hidden lg:block py-24 md:py-40';
             const borderClass = isMobile ? 'border-y border-zinc-800 my-8' : 'border-b border-zinc-800';
@@ -406,7 +410,6 @@
                             <div className="flex flex-col gap-8 text-2xl font-black uppercase tracking-widest text-center">
                                 <a href="#o-wydarzeniu" onClick={closeMenu} className="hover:text-zinc-500">O Wydarzeniu</a>
                                 <a href="#dla-kogo" onClick={closeMenu} className="hover:text-zinc-500">Dla Kogo</a>
-                                {/* WAŻNE: Na mobile linkujemy do mobilnego ID sekcji Miejsce Targów */}
                                 <a href="#informacje-mobile" onClick={closeMenu} className="hover:text-zinc-500">Data & Miejsce</a>
                             </div>
                         </div>
@@ -439,13 +442,13 @@
                                     </div>
                                 </div>
 
-                                {/* TYLKO MOBILE: MIEJSCE TARGÓW WSTRZYKNIĘTE POMIĘDZY TEKST A FORMULARZ */}
-                                <div className="col-span-full w-screen relative left-1/2 -translate-x-1/2 lg:hidden">
+                                {/* TYLKO MOBILE: MIEJSCE TARGÓW (Z bezpiecznym ujemnym marginesem) */}
+                                <div className="col-span-full -mx-4 md:-mx-12 lg:hidden">
                                     <LocationSection isMobile={true} />
                                 </div>
 
-                                {/* PRAWA STRONA HERO - FORMULARZ */}
-                                <div className="lg:col-span-6 xl:col-span-5 flex justify-center lg:justify-end">
+                                {/* PRAWA STRONA HERO - FORMULARZ (Wymuszone wyśrodkowanie na mobile) */}
+                                <div className="lg:col-span-6 xl:col-span-5 flex flex-col items-center lg:items-end w-full mt-8 lg:mt-0">
                                     <div className="w-full max-w-md xl:max-w-lg bg-white/90 backdrop-blur-sm p-5 md:p-8 md:px-10 relative overflow-hidden">
                                         <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
                                             <div className="w-6 md:w-8 h-[2px] bg-black"></div>
@@ -471,7 +474,7 @@
                                                         value={formData.nip} 
                                                         onChange={handleNipChange} 
                                                         placeholder=" " 
-                                                        className="input-premium font-mono py-2 text-sm" 
+                                                        className={`input-premium font-mono py-2 text-sm ${formData.nip ? 'has-value' : ''}`} 
                                                     />
                                                     <label htmlFor="nip" className="input-label flex items-center gap-2">
                                                         NIP Firmy (opcjonalnie)
@@ -487,24 +490,24 @@
                                                         value={formData.companyName} 
                                                         onChange={(e) => setFormData({...formData, companyName: e.target.value})} 
                                                         placeholder=" " 
-                                                        className={`input-premium transition-opacity duration-300 py-2 text-sm ${isFetchingNip ? 'opacity-40' : 'opacity-100'}`} 
+                                                        className={`input-premium transition-opacity duration-300 py-2 text-sm ${isFetchingNip ? 'opacity-40' : 'opacity-100'} ${formData.companyName ? 'has-value' : ''}`} 
                                                     />
                                                     <label htmlFor="company" className="input-label">Pełna nazwa firmy</label>
                                                 </div>
 
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                                     <div className="input-group mb-0">
-                                                        <input type="text" id="name" required value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder=" " className="input-premium py-2 text-sm" />
+                                                        <input type="text" id="name" required value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder=" " className={`input-premium py-2 text-sm ${formData.name ? 'has-value' : ''}`} />
                                                         <label htmlFor="name" className="input-label">Imię i Nazwisko</label>
                                                     </div>
                                                     <div className="input-group mb-0">
-                                                        <input type="tel" id="phone" required value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} placeholder=" " className="input-premium py-2 text-sm" />
+                                                        <input type="tel" id="phone" required value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} placeholder=" " className={`input-premium py-2 text-sm ${formData.phone ? 'has-value' : ''}`} />
                                                         <label htmlFor="phone" className="input-label">Telefon komórkowy</label>
                                                     </div>
                                                 </div>
 
                                                 <div className="input-group mb-0">
-                                                    <input type="email" id="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder=" " className="input-premium py-2 text-sm" />
+                                                    <input type="email" id="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder=" " className={`input-premium py-2 text-sm ${formData.email ? 'has-value' : ''}`} />
                                                     <label htmlFor="email" className="input-label">Służbowy e-mail</label>
                                                 </div>
 
