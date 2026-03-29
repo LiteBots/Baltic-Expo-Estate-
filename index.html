@@ -127,6 +127,7 @@
             pointer-events: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
+        /* Dodana klasa .has-value zapewnia 100% pewności, że label odskoczy po wypełnieniu */
         .input-premium:focus ~ .input-label,
         .input-premium.has-value ~ .input-label,
         .input-premium:not(:placeholder-shown) ~ .input-label {
@@ -172,6 +173,7 @@
             </div>
         );
 
+        // Komponent sekcji "Miejsce Targów", aby można go było użyć dwukrotnie z odpowiednim stylowaniem
         const LocationSection = ({ isMobile }) => {
             const visibilityClass = isMobile ? 'block lg:hidden py-16' : 'hidden lg:block py-24 md:py-40';
             const borderClass = isMobile ? 'border-y border-zinc-800 my-8' : 'border-b border-zinc-800';
@@ -415,11 +417,10 @@
                         {/* HERO SECTION */}
                         <section className="relative min-h-screen pt-[120px] md:pt-[160px] lg:pt-[200px] pb-12 md:pb-20 flex flex-col justify-center overflow-hidden bg-white">
                             
-                            {/* DODANE ZDJĘCIE W TLE HERO */}
+                            {/* DODANE ZDJĘCIE W TLE HERO ORAZ USUNIĘTA KRATKA */}
                             <div className="absolute inset-0 z-0">
                                 <img src="https://i.imgur.com/7vGnosV.jpeg" alt="Tło Hero" className="w-full h-full object-cover opacity-30" />
                             </div>
-                            <div className="absolute inset-0 bg-architect-grid opacity-60 z-0"></div>
                             
                             <div ref={heroTextRef} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none select-none z-0 transition-transform duration-100 ease-out">
                                 <h1 className="text-[30vw] md:text-[25vw] font-black font-grotesk text-zinc-100/80 leading-none mt-10 md:mt-20">2026</h1>
