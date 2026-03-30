@@ -2,32 +2,28 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Regulamin | Baltic Estate Expo 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Regulamin | Bałtyckie Targi Nieruchomości Baltic Estate Expo 2026</title>
+    
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="faviconn.png" sizes="any">
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-     <link rel="icon" href="faviconn.png" sizes="any">
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        black: '#050505',
-                        white: '#ffffff',
-                        zinc: {
-                            900: '#18181b',
-                            800: '#27272a',
-                            100: '#f4f4f5',
-                        }
+                        black: '#050505', white: '#ffffff',
+                        zinc: { 900: '#18181b', 800: '#27272a', 100: '#f4f4f4' }
                     },
                     animation: {
-                        'marquee': 'marquee 25s linear infinite',
-                        'marquee-fast': 'marquee 15s linear infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     }
                 }
             }
@@ -46,37 +42,23 @@
             overflow-x: hidden;
         }
 
-        ::selection {
-            background-color: #050505;
-            color: #ffffff;
-        }
-
+        ::selection { background-color: #050505; color: #ffffff; }
         .font-grotesk { font-family: 'Space Grotesk', sans-serif; }
 
         /* Noise Texture */
         .noise-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0.04;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9998; opacity: 0.04;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        /* Architect Grid */
-        .bg-architect-grid {
-            background-size: 60px 60px;
-            background-image: linear-gradient(to right, rgba(0,0,0,0.06) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px);
-        }
-
-        /* Scroll Reveal Animations */
-        .reveal { opacity: 0; transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform, opacity; }
-        .reveal.active { opacity: 1; transform: translate(0, 0) scale(1); }
-        .reveal-up { transform: translateY(40px); }
+        /* Stylizacja list wewnątrz regulaminu */
+        .legal-content ul { list-style-type: none; padding-left: 0; }
+        .legal-content ul li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+        .legal-content ul li::before { content: '–'; position: absolute; left: 0; color: #a1a1aa; }
+        
+        .legal-section { border-bottom: 1px solid #e4e4e7; padding-bottom: 2rem; margin-bottom: 2rem; }
+        .legal-section:last-child { border-bottom: none; }
     </style>
 </head>
 <body class="antialiased">
@@ -97,134 +79,126 @@
             const [scrolled, setScrolled] = useState(false);
 
             useEffect(() => {
-                const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('active');
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                }, observerOptions);
-
-                document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-                const handleScroll = () => setScrolled(window.scrollY > 50);
-                window.addEventListener('scroll', handleScroll);
-                handleScroll(); 
-                
-                if (window.lucide) window.lucide.createIcons();
-                
-                return () => {
-                    window.removeEventListener('scroll', handleScroll);
-                    observer.disconnect();
+                const handleScroll = () => {
+                    setScrolled(window.scrollY > 50);
                 };
+                window.addEventListener('scroll', handleScroll);
+                handleScroll(); // Check initial position
+                return () => window.removeEventListener('scroll', handleScroll);
             }, []);
 
             return (
-                <div className="min-h-screen relative flex flex-col">
+                <div class="relative w-full h-full">
                     
-                    {/* NAWIGACJA (identyczna, ale linki prowadzą do index.html) */}
-                    <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'py-4 bg-white/90 backdrop-blur-xl border-b border-black/10 shadow-sm' : 'py-6 md:py-8 bg-transparent'}`}>
-                        <div className="w-full px-6 md:px-12 flex justify-between items-center max-w-[1800px] mx-auto">
+                    {/* NAWIGACJA (Spójna ze stroną główną) */}
+                    <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'py-3 md:py-4 bg-white/95 backdrop-blur-xl border-b border-black/10 shadow-sm' : 'py-4 md:py-8 bg-transparent'}`}>
+                        <div className="w-full px-4 md:px-12 flex justify-between items-center max-w-[1800px] mx-auto relative">
                             
-                            <div className="hidden lg:flex gap-12 text-xs font-black uppercase tracking-[0.2em] text-zinc-500 items-center">
-                                <a href="index.html#o-wydarzeniu" className="hover:text-black hover:-translate-y-1 transition-all">O Wydarzeniu</a>
-                                <a href="index.html#dla-kogo" className="hover:text-black hover:-translate-y-1 transition-all">Dla Kogo</a>
-                                <a href="index.html#informacje" className="hover:text-black hover:-translate-y-1 transition-all">Data & Miejsce</a>
-                            </div>
-                            
-                            <div className="lg:hidden flex-1"></div>
+                            <a href="index.html" className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-black hover:text-zinc-500 transition-colors">
+                                <Icon name="arrow-left" size={16} />
+                                Powrót do strony głównej
+                            </a>
 
-                            <div className="flex items-center gap-4 ml-auto">
-                                <span className="font-grotesk font-black text-lg md:text-2xl tracking-tighter uppercase text-right leading-none">Baltic Expo<br/>Estate</span>
-                                <a href="index.html" className={`transition-all duration-500 transform hover:scale-105 origin-right flex-shrink-0 ${scrolled ? 'h-10 md:h-12' : 'h-14 md:h-16'}`}>
-                                    <img src="https://i.imgur.com/teVTDYr.png" alt="Baltic Expo Estate Logo" className="h-full w-auto object-contain filter invert drop-shadow-xl" />
+                            <div className="flex items-center gap-3 md:gap-4 ml-auto z-50 relative">
+                                <span className="font-grotesk font-black text-sm sm:text-lg md:text-2xl tracking-tighter uppercase text-right leading-none">Baltic Expo<br/>Estate</span>
+                                <a href="index.html" className={`transition-all duration-500 transform hover:scale-105 origin-right flex-shrink-0 ${scrolled ? 'h-8 md:h-12' : 'h-10 md:h-16'}`}>
+                                    <img src="https://i.imgur.com/teVTDYr.png" alt="Baltic Expo Estate Logo" className="h-full w-auto object-contain drop-shadow-xl" />
                                 </a>
                             </div>
                             
                         </div>
                     </nav>
 
-                    {/* HERO REGULAMINU */}
-                    <header className="relative pt-[160px] lg:pt-[200px] pb-20 border-b border-black bg-zinc-50 overflow-hidden">
-                        <div className="absolute inset-0 bg-architect-grid opacity-60"></div>
-                        <div className="relative z-10 w-full px-6 md:px-12 max-w-[1200px] mx-auto text-center reveal reveal-up">
-                            <div className="flex items-center justify-center gap-4 mb-6">
-                                <div className="w-8 h-[2px] bg-black"></div>
-                                <p className="text-sm font-black uppercase tracking-[0.4em]">Dokumenty</p>
-                                <div className="w-8 h-[2px] bg-black"></div>
+                    {/* HERO / NAGŁÓWEK SEKCJII */}
+                    <header className="relative pt-[140px] md:pt-[180px] pb-12 md:pb-20 bg-zinc-50 border-b border-zinc-200 overflow-hidden">
+                        <div className="absolute inset-0 z-0 bg-architect-grid opacity-10"></div>
+                        <div class="max-w-[1800px] mx-auto px-4 md:px-12 relative z-10">
+                            <div className="inline-flex items-center gap-3 mb-6 bg-black text-white px-4 py-2 border-l-4 border-zinc-400">
+                                <Icon name="file-text" size={18} />
+                                <p className="text-xs md:text-sm font-black uppercase tracking-[0.2em]">Dokument oficjalny</p>
                             </div>
-                            <h1 className="text-5xl md:text-7xl font-grotesk font-black tracking-tighter uppercase mb-6 text-black">
-                                Regulamin
+                            
+                            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-grotesk font-black tracking-tighter leading-[0.95] uppercase mb-6 mix-blend-difference text-black break-words">
+                                Regulamin<br/>Wydarzenia
                             </h1>
-                            <p className="text-xl md:text-2xl font-medium text-zinc-600">
+                            
+                            <p className="text-lg md:text-2xl text-zinc-600 font-light max-w-3xl">
                                 Targów Nieruchomości Baltic Estate Expo<br/>
-                                <span className="font-bold text-black">24 maja 2026 r. Hala Gryfia</span>
+                                <span className="font-bold text-black">24 maja 2026 r. • Hala Gryfia, Słupsk</span>
                             </p>
                         </div>
                     </header>
 
-                    {/* TREŚĆ REGULAMINU */}
-                    <main className="flex-1 py-24 px-6 md:px-12 bg-white">
-                        <div className="max-w-[900px] mx-auto space-y-16 reveal reveal-up">
+                    {/* GŁÓWNA TREŚĆ REGULAMINU */}
+                    <main className="py-16 md:py-24 px-4 md:px-12 max-w-[1800px] mx-auto overflow-hidden">
+                        <div className="max-w-5xl mx-auto legal-content text-base md:text-lg text-zinc-800 leading-relaxed font-light space-y-12">
                             
-                            <section>
-                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 border-b-4 border-black inline-block pb-2">§1. Postanowienia ogólne</h2>
-                                <div className="space-y-4 text-lg text-zinc-700 leading-relaxed font-medium">
-                                    <p>1. Niniejszy Regulamin określa zasady uczestnictwa w wydarzeniu „Targi Nieruchomości Baltic Estate Expo”, zwanym dalej „Targami”.</p>
-                                    <p>2. Targi odbędą się w dniu 24 maja 2026 r. w Hali Gryfia w Słupsku.</p>
-                                    <p>3. Organizatorem Targów jest Baltic Estate Expo (dalej: „Organizator”).</p>
-                                    <p>4. Regulamin obowiązuje wszystkich uczestników Targów, w tym:</p>
-                                    <ul className="pl-8 space-y-1 list-none">
+                            <div className="legal-section">
+                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 uppercase tracking-tight text-black flex items-center gap-3">
+                                    <span className="text-zinc-300">§1.</span> Postanowienia ogólne
+                                </h2>
+                                <div className="space-y-4">
+                                    <p><strong className="font-semibold text-black">1.</strong> Niniejszy Regulamin określa zasady uczestnictwa w wydarzeniu „Targi Nieruchomości Baltic Estate Expo”, zwanym dalej „Targami”.</p>
+                                    <p><strong className="font-semibold text-black">2.</strong> Targi odbędą się w dniu 24 maja 2026 r. w Hali Gryfia w Słupsku.</p>
+                                    <p><strong className="font-semibold text-black">3.</strong> Organizatorem Targów jest Baltic Estate Expo (dalej: „Organizator”).</p>
+                                    <p><strong className="font-semibold text-black">4.</strong> Regulamin obowiązuje wszystkich uczestników Targów, w tym:</p>
+                                    <ul className="pl-6 space-y-2">
                                         <li>a) Wystawców,</li>
                                         <li>b) Zwiedzających,</li>
                                         <li>c) Partnerów i Sponsorów.</li>
                                     </ul>
-                                    <p>5. Uczestnictwo w Targach oznacza akceptację niniejszego Regulaminu.</p>
-                                    <p>6. Wszyscy uczestnicy zobowiązani są do przestrzegania regulaminu obiektu oraz przepisów BHP i ppoż.</p>
+                                    <p><strong className="font-semibold text-black">5.</strong> Uczestnictwo w Targach oznacza akceptację niniejszego Regulaminu.</p>
+                                    <p><strong className="font-semibold text-black">6.</strong> Wszyscy uczestnicy zobowiązani są do przestrzegania regulaminu obiektu oraz przepisów BHP i ppoż.</p>
                                 </div>
-                            </section>
+                            </div>
 
-                            <section>
-                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 border-b-4 border-black inline-block pb-2">§2. Zawarcie umowy uczestnictwa (Wystawcy)</h2>
-                                <div className="space-y-4 text-lg text-zinc-700 leading-relaxed font-medium">
-                                    <p>1. Warunkiem udziału Wystawcy w Targach jest przesłanie wypełnionego formularza zgłoszeniowego.</p>
-                                    <p>2. Zgłoszenie stanowi ofertę zawarcia umowy uczestnictwa.</p>
-                                    <p>3. Umowa zostaje zawarta w momencie potwierdzenia zgłoszenia przez Organizatora.</p>
-                                    <p>4. Organizator zastrzega sobie prawo odmowy przyjęcia zgłoszenia bez podania przyczyny.</p>
+                            <div className="legal-section">
+                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 uppercase tracking-tight text-black flex items-center gap-3">
+                                    <span className="text-zinc-300">§2.</span> Zawarcie umowy uczestnictwa (Wystawcy)
+                                </h2>
+                                <div className="space-y-4">
+                                    <p><strong className="font-semibold text-black">1.</strong> Warunkiem udziału Wystawcy w Targach jest przesłanie wypełnionego formularza zgłoszeniowego.</p>
+                                    <p><strong className="font-semibold text-black">2.</strong> Zgłoszenie stanowi ofertę zawarcia umowy uczestnictwa.</p>
+                                    <p><strong className="font-semibold text-black">3.</strong> Umowa zostaje zawarta w momencie potwierdzenia zgłoszenia przez Organizatora.</p>
+                                    <p><strong className="font-semibold text-black">4.</strong> Organizator zastrzega sobie prawo odmowy przyjęcia zgłoszenia bez podania przyczyny.</p>
                                 </div>
-                            </section>
+                            </div>
 
-                            <section>
-                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 border-b-4 border-black inline-block pb-2">§3. Uczestnicy Targów</h2>
-                                <div className="space-y-4 text-lg text-zinc-700 leading-relaxed font-medium">
-                                    <p>1. Uczestnikami Targów mogą być osoby fizyczne oraz podmioty gospodarcze.</p>
-                                    <p>2. Osoby niepełnoletnie mogą przebywać na terenie Targów wyłącznie pod opieką osoby dorosłej.</p>
-                                    <p>3. Organizator może wprowadzić różne kategorie uczestników (np. VIP, wystawcy, goście branżowi).</p>
+                            <div className="legal-section">
+                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 uppercase tracking-tight text-black flex items-center gap-3">
+                                    <span className="text-zinc-300">§3.</span> Uczestnicy Targów
+                                </h2>
+                                <div className="space-y-4">
+                                    <p><strong className="font-semibold text-black">1.</strong> Uczestnikami Targów mogą być osoby fizyczne oraz podmioty gospodarcze.</p>
+                                    <p><strong className="font-semibold text-black">2.</strong> Osoby niepełnoletnie mogą przebywać na terenie Targów wyłącznie pod opieką osoby dorosłej.</p>
+                                    <p><strong className="font-semibold text-black">3.</strong> Organizator może wprowadzić różne kategorie uczestników (np. VIP, wystawcy, goście branżowi).</p>
                                 </div>
-                            </section>
+                            </div>
 
-                            <section>
-                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 border-b-4 border-black inline-block pb-2">§4. Zasady wstępu</h2>
-                                <div className="space-y-4 text-lg text-zinc-700 leading-relaxed font-medium">
-                                    <p>1. Wstęp na Targi odbywa się na podstawie:</p>
-                                    <ul className="pl-8 space-y-1 list-none">
+                            <div className="legal-section">
+                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 uppercase tracking-tight text-black flex items-center gap-3">
+                                    <span className="text-zinc-300">§4.</span> Zasady wstępu
+                                </h2>
+                                <div className="space-y-4">
+                                    <p><strong className="font-semibold text-black">1.</strong> Wstęp na Targi odbywa się na podstawie:</p>
+                                    <ul className="pl-6 space-y-2">
                                         <li>a) ważnego biletu,</li>
                                         <li>b) zaproszenia,</li>
                                         <li>c) rejestracji online.</li>
                                     </ul>
-                                    <p>2. Organizator może wprowadzić opłaty za udział w wydarzeniu lub jego części.</p>
-                                    <p>3. Organizator zastrzega sobie prawo do limitowania liczby uczestników.</p>
+                                    <p><strong className="font-semibold text-black">2.</strong> Organizator może wprowadzić opłaty za udział w wydarzeniu lub jego części.</p>
+                                    <p><strong className="font-semibold text-black">3.</strong> Organizator zastrzega sobie prawo do limitowania liczby uczestników.</p>
                                 </div>
-                            </section>
+                            </div>
 
-                            <section>
-                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 border-b-4 border-black inline-block pb-2">§5. Zasady porządkowe i bezpieczeństwo</h2>
-                                <div className="space-y-4 text-lg text-zinc-700 leading-relaxed font-medium">
-                                    <p>1. Uczestnicy zobowiązani są do stosowania się do poleceń Organizatora oraz służb porządkowych.</p>
-                                    <p>2. Na terenie Targów zabrania się:</p>
-                                    <ul className="pl-8 space-y-1 list-none">
+                            <div className="legal-section">
+                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 uppercase tracking-tight text-black flex items-center gap-3">
+                                    <span className="text-zinc-300">§5.</span> Zasady porządkowe i bezpieczeństwo
+                                </h2>
+                                <div className="space-y-4">
+                                    <p><strong className="font-semibold text-black">1.</strong> Uczestnicy zobowiązani są do stosowania się do poleceń Organizatora oraz służb porządkowych.</p>
+                                    <p><strong className="font-semibold text-black">2.</strong> Na terenie Targów zabrania się:</p>
+                                    <ul className="pl-6 space-y-2">
                                         <li>a) wnoszenia niebezpiecznych przedmiotów i substancji,</li>
                                         <li>b) spożywania alkoholu poza wyznaczonymi strefami,</li>
                                         <li>c) palenia tytoniu poza miejscami do tego przeznaczonymi,</li>
@@ -232,94 +206,115 @@
                                         <li>e) wchodzenia do stref zamkniętych,</li>
                                         <li>f) zastawiania dróg ewakuacyjnych.</li>
                                     </ul>
-                                    <p>3. Organizator ma prawo odmówić wstępu lub usunąć osoby naruszające regulamin.</p>
+                                    <p><strong className="font-semibold text-black">3.</strong> Organizator ma prawo odmówić wstępu lub usunąć osoby naruszające regulamin.</p>
                                 </div>
-                            </section>
+                            </div>
 
-                            <section>
-                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 border-b-4 border-black inline-block pb-2">§6. Stoiska i działalność wystawców</h2>
-                                <div className="space-y-4 text-lg text-zinc-700 leading-relaxed font-medium">
-                                    <p>1. Wystawcy mogą prowadzić działalność promocyjną wyłącznie w obrębie wynajętej powierzchni.</p>
-                                    <p>2. Zabrania się prowadzenia działań marketingowych poza wyznaczonym stoiskiem bez zgody Organizatora.</p>
-                                    <p>3. Wystawca odpowiada za swoje stoisko, eksponaty i sprzęt.</p>
-                                    <p>4. Montaż i demontaż stoisk odbywa się w terminach określonych przez Organizatora.</p>
+                            <div className="legal-section">
+                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 uppercase tracking-tight text-black flex items-center gap-3">
+                                    <span className="text-zinc-300">§6.</span> Stoiska i działalność wystawców
+                                </h2>
+                                <div className="space-y-4">
+                                    <p><strong className="font-semibold text-black">1.</strong> Wystawcy mogą prowadzić działalność promocyjną wyłącznie w obrębie wynajętej powierzchni.</p>
+                                    <p><strong className="font-semibold text-black">2.</strong> Zabrania się prowadzenia działań marketingowych poza wyznaczonym stoiskiem bez zgody Organizatora.</p>
+                                    <p><strong className="font-semibold text-black">3.</strong> Wystawca odpowiada za swoje stoisko, eksponaty i sprzęt.</p>
+                                    <p><strong className="font-semibold text-black">4.</strong> Montaż i demontaż stoisk odbywa się w terminach określonych przez Organizatora.</p>
                                 </div>
-                            </section>
+                            </div>
 
-                            <section>
-                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 border-b-4 border-black inline-block pb-2">§7. Odpowiedzialność</h2>
-                                <div className="space-y-4 text-lg text-zinc-700 leading-relaxed font-medium">
-                                    <p>1. Organizator nie ponosi odpowiedzialności za:</p>
-                                    <ul className="pl-8 space-y-1 list-none">
+                            <div className="legal-section">
+                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 uppercase tracking-tight text-black flex items-center gap-3">
+                                    <span className="text-zinc-300">§7.</span> Odpowiedzialność
+                                </h2>
+                                <div className="space-y-4">
+                                    <p><strong className="font-semibold text-black">1.</strong> Organizator nie ponosi odpowiedzialności za:</p>
+                                    <ul className="pl-6 space-y-2">
                                         <li>a) rzeczy zagubione lub skradzione,</li>
                                         <li>b) szkody powstałe z winy uczestników,</li>
                                         <li>c) przerwy w funkcjonowaniu wydarzenia wynikające z przyczyn niezależnych.</li>
                                     </ul>
-                                    <p>2. Wystawcy ponoszą pełną odpowiedzialność za swoje mienie.</p>
+                                    <p><strong className="font-semibold text-black">2.</strong> Wystawcy ponoszą pełną odpowiedzialność za swoje mienie.</p>
                                 </div>
-                            </section>
+                            </div>
 
-                            <section>
-                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 border-b-4 border-black inline-block pb-2">§8. Utrwalanie wydarzenia (foto i video)</h2>
-                                <div className="space-y-4 text-lg text-zinc-700 leading-relaxed font-medium">
-                                    <p>1. Podczas Targów może być prowadzona dokumentacja fotograficzna i filmowa.</p>
-                                    <p>2. Uczestnictwo w wydarzeniu oznacza zgodę na nieodpłatne wykorzystanie wizerunku w materiałach promocyjnych.</p>
+                            <div className="legal-section">
+                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 uppercase tracking-tight text-black flex items-center gap-3">
+                                    <span className="text-zinc-300">§8.</span> Utrwalanie wydarzenia (foto i video)
+                                </h2>
+                                <div className="space-y-4">
+                                    <p><strong className="font-semibold text-black">1.</strong> Podczas Targów może być prowadzona dokumentacja fotograficzna i filmowa.</p>
+                                    <p><strong className="font-semibold text-black">2.</strong> Uczestnictwo w wydarzeniu oznacza zgodę na nieodpłatne wykorzystanie wizerunku w materiałach promocyjnych.</p>
                                 </div>
-                            </section>
+                            </div>
 
-                            <section>
-                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 border-b-4 border-black inline-block pb-2">§9. Dane osobowe</h2>
-                                <div className="space-y-4 text-lg text-zinc-700 leading-relaxed font-medium">
-                                    <p>1. Dane osobowe uczestników przetwarzane są zgodnie z obowiązującymi przepisami RODO.</p>
-                                    <p>2. Administratorem danych jest Organizator.</p>
-                                    <p>3. Szczegóły przetwarzania danych dostępne są w Polityce Prywatności Organizatora.</p>
+                            <div className="legal-section">
+                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 uppercase tracking-tight text-black flex items-center gap-3">
+                                    <span className="text-zinc-300">§9.</span> Dane osobowe
+                                </h2>
+                                <div className="space-y-4">
+                                    <p><strong className="font-semibold text-black">1.</strong> Dane osobowe uczestników przetwarzane są zgodnie z obowiązującymi przepisami RODO.</p>
+                                    <p><strong className="font-semibold text-black">2.</strong> Administratorem danych jest Organizator.</p>
+                                    <p><strong className="font-semibold text-black">3.</strong> Szczegóły przetwarzania danych dostępne są w Polityce Prywatności Organizatora.</p>
                                 </div>
-                            </section>
+                            </div>
 
-                            <section>
-                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 border-b-4 border-black inline-block pb-2">§10. Reklamacje</h2>
-                                <div className="space-y-4 text-lg text-zinc-700 leading-relaxed font-medium">
-                                    <p>1. Reklamacje dotyczące udziału w Targach należy zgłaszać w formie pisemnej w terminie 7 dni od zakończenia wydarzenia.</p>
-                                    <p>2. Organizator rozpatruje reklamacje w terminie 14 dni.</p>
+                            <div className="legal-section">
+                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 uppercase tracking-tight text-black flex items-center gap-3">
+                                    <span className="text-zinc-300">§10.</span> Reklamacje
+                                </h2>
+                                <div className="space-y-4">
+                                    <p><strong className="font-semibold text-black">1.</strong> Reklamacje dotyczące udziału w Targach należy zgłaszać w formie pisemnej w terminie 7 dni od zakończenia wydarzenia.</p>
+                                    <p><strong className="font-semibold text-black">2.</strong> Organizator rozpatruje reklamacje w terminie 14 dni.</p>
                                 </div>
-                            </section>
+                            </div>
 
-                            <section>
-                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 border-b-4 border-black inline-block pb-2">§11. Postanowienia końcowe</h2>
-                                <div className="space-y-4 text-lg text-zinc-700 leading-relaxed font-medium">
-                                    <p>1. Organizator zastrzega sobie prawo do zmian programu wydarzenia oraz niniejszego Regulaminu.</p>
-                                    <p>2. Aktualna wersja Regulaminu publikowana jest na stronie internetowej wydarzenia.</p>
-                                    <p>3. W sprawach nieuregulowanych zastosowanie mają przepisy prawa polskiego.</p>
-                                    <p>4. Regulamin wchodzi w życie z dniem publikacji.</p>
+                            <div className="legal-section">
+                                <h2 className="text-2xl md:text-3xl font-grotesk font-black mb-6 uppercase tracking-tight text-black flex items-center gap-3">
+                                    <span className="text-zinc-300">§11.</span> Postanowienia końcowe
+                                </h2>
+                                <div className="space-y-4">
+                                    <p><strong className="font-semibold text-black">1.</strong> Organizator zastrzega sobie prawo do zmian programu wydarzenia oraz niniejszego Regulaminu.</p>
+                                    <p><strong className="font-semibold text-black">2.</strong> Aktualna wersja Regulaminu publikowana jest na stronie internetowej wydarzenia.</p>
+                                    <p><strong className="font-semibold text-black">3.</strong> W sprawach nieuregulowanych zastosowanie mają przepisy prawa polskiego.</p>
+                                    <p><strong className="font-semibold text-black">4.</strong> Regulamin wchodzi w życie z dniem publikacji.</p>
                                 </div>
-                            </section>
+                            </div>
 
                         </div>
                     </main>
 
-                    {/* FOOTER */}
-                    <footer className="bg-black text-white pt-32 pb-12 px-6 md:px-12 border-t border-zinc-900 mt-auto">
+                    {/* FOOTER (Spójny ze stroną główną) */}
+                    <footer className="bg-black text-white pt-20 md:pt-32 pb-8 md:pb-12 px-4 md:px-12 border-t border-zinc-900">
                         <div className="max-w-[1800px] mx-auto">
-                            <div className="grid lg:grid-cols-2 gap-20 mb-32">
+                            <div className="grid lg:grid-cols-2 gap-12 md:gap-20 mb-20 md:mb-32">
                                 <div>
-                                    <h3 className="text-4xl md:text-5xl font-grotesk font-black mb-6">Skontaktuj się z <br/>Biurem Targów.</h3>
-                                    <p className="text-zinc-400 text-lg">Zbuduj swoją przewagę. Pozyskaj klientów. Bądź częścią najważniejszego wydarzenia nieruchomościowego w regionie.</p>
+                                    <h3 className="text-3xl sm:text-4xl md:text-5xl font-grotesk font-black mb-4 md:mb-6 leading-tight">Skontaktuj się z <br/>Biurem Targów.</h3>
+                                    <p className="text-zinc-400 text-base md:text-lg max-w-md">Masz pytania dotyczące regulaminu lub uczestnictwa? Jesteśmy do Twojej dyspozycji.</p>
                                 </div>
                                 
-                                <div className="flex flex-col justify-center space-y-8 text-2xl md:text-4xl font-light">
-                                    <a href="mailto:wystawcy@balticexpo.pl" className="flex items-center gap-6 hover:text-zinc-500 transition-colors border-b border-zinc-800 pb-8 group">
-                                        <div className="w-16 h-16 rounded-full border border-zinc-800 flex items-center justify-center group-hover:bg-white group-hover:border-white group-hover:text-black transition-all duration-300">
-                                            <Icon name="mail" size={28} />
+                                <div className="flex flex-col justify-center space-y-6 md:space-y-8 text-xl sm:text-2xl md:text-4xl font-light">
+                                    <a href="mailto:kontakt@balticexpo.pl" className="flex items-center gap-4 md:gap-6 hover:text-zinc-500 transition-colors border-b border-zinc-800 pb-6 md:pb-8 group break-all">
+                                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-zinc-800 flex shrink-0 items-center justify-center group-hover:bg-white group-hover:border-white group-hover:text-black transition-all duration-300">
+                                            <Icon name="mail" size={24} className="md:w-7 md:h-7" />
                                         </div>
                                         kontakt@balticexpo.pl
+                                    </a>
+                                    
+                                    <a href="https://www.facebook.com/TargiNieruchomosciSlupsk?locale=pl_PL" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 md:gap-6 hover:text-zinc-500 transition-colors border-b border-zinc-800 pb-6 md:pb-8 group break-all">
+                                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-zinc-800 flex shrink-0 items-center justify-center overflow-hidden transition-all duration-300">
+                                            <img src="https://i.imgur.com/N7mg0JP.png" alt="Facebook" className="w-6 h-6 md:w-8 md:h-8 object-contain transition-transform duration-300 group-hover:scale-110" />
+                                        </div>
+                                        Facebook
                                     </a>
                                 </div>
                             </div>
 
-                            <div className="flex flex-col lg:flex-row justify-between items-center text-xs font-black uppercase tracking-[0.2em] text-zinc-500 pt-8 border-t border-zinc-900 gap-8">
-                                <div>&copy; 2026 Bałtyckie Targi Nieruchomości. Wszystkie prawa zastrzeżone.</div>
-                                <div className="flex flex-wrap justify-center gap-8">
-                                   
+                            <div className="flex flex-col lg:flex-row justify-between items-center text-[10px] md:text-xs font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-zinc-500 pt-8 border-t border-zinc-900 gap-6 md:gap-8 text-center lg:text-left">
+                                <div>&copy; 2026 Bałtyckie Targi Nieruchomości. Wszelkie prawa zastrzeżone.</div>
+                                <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+                                    <a href="index.html" className="hover:text-white transition-colors">Strona Główna</a>
+                                    <span className="text-zinc-700">|</span>
+                                    <span className="text-white">Regulamin</span>
                                 </div>
                             </div>
                         </div>
