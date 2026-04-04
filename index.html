@@ -326,10 +326,11 @@
                 setFormStatus(null);
                 
                 try {
-                    // Wysłanie danych do EmailJS (zaktualizowane nazwy zmiennych)
+                    // Wysłanie danych do EmailJS
                     const response = await sendEmailJS({
                         name: formData.name,
-                        company_name: formData.companyName,
+                        company: formData.companyName,       // Wysłane jako company
+                        company_name: formData.companyName,  // Wysłane jako company_name (na wszelki wypadek)
                         nip: formData.nip || 'Nie podano',
                         email: formData.email,
                         phone: formData.phone
