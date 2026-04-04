@@ -149,10 +149,6 @@
 
         const TICKER_WORDS = ["INWESTYCJE", "NETWORKING", "ROZWÓJ", "BIZNES", "NIERUCHOMOŚCI", "KREDYTY", "BUDOWNICTWO", "DESIGN"];
 
-        const EMAILJS_SERVICE_ID = 'service_lvd7cze';
-        const EMAILJS_TEMPLATE_ID = 'template_2lqka67';
-        const EMAILJS_PUBLIC_KEY = 'ELubHWJeM4leHqOXv';
-
         const Icon = ({ name, size = 24, className = "" }) => {
             useEffect(() => {
                 if (window.lucide) window.lucide.createIcons();
@@ -173,7 +169,6 @@
             </div>
         );
 
-        // Komponent sekcji "Miejsce Targów", aby można go było użyć dwukrotnie z odpowiednim stylowaniem
         const LocationSection = ({ isMobile }) => {
             const visibilityClass = isMobile ? 'block lg:hidden py-16' : 'hidden lg:block py-24 md:py-40';
             const borderClass = isMobile ? 'border-y border-zinc-800 my-8' : 'border-b border-zinc-800';
@@ -306,34 +301,40 @@
                 }
             };
 
-            const sendEmailJS = async (templateParams) => {
-                return fetch('https://api.emailjs.com/api/v1.0/email/send', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        service_id: EMAILJS_SERVICE_ID,
-                        template_id: EMAILJS_TEMPLATE_ID,
-                        user_id: EMAILJS_PUBLIC_KEY,
-                        template_params: templateParams
-                    })
-                });
-            };
-
+            // Zmodyfikowana funkcja wysyłania do Twojego pliku send.php
             const handleSubmit = async (e) => {
                 e.preventDefault();
                 setIsSubmitting(true);
+                setFormStatus(null);
+                
                 try {
-                    const response = await sendEmailJS({
-                        name: formData.name,
-                        company: formData.companyName + (formData.nip ? ` (NIP: ${formData.nip})` : ''),
-                        email: formData.email,
-                        phone: formData.phone
+                    const response = await fetch('send.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            nip: formData.nip,
+                            companyName: formData.companyName,
+                            name: formData.name,
+                            phone: formData.phone,
+                            email: formData.email
+                        })
                     });
-                    if (response.ok) {
+
+                    const result = await response.json();
+
+                    if (response.ok && result.status === 'success') {
                         setFormStatus('Sukces! Komplet dokumentów wystawcy został wysłany na Twój adres e-mail.');
                         setFormData({ nip: '', companyName: '', name: '', phone: '', email: '' });
-                    } else { setFormStatus('Wystąpił problem z serwerem poczty. Spróbuj ponownie później.'); }
-                } catch (error) { setFormStatus('Wystąpił błąd. Sprawdź połączenie z internetem.'); }
+                    } else {
+                        setFormStatus(result.message || 'Wystąpił problem z serwerem poczty. Spróbuj ponownie później.');
+                    }
+                } catch (error) {
+                    setFormStatus('Wystąpił błąd. Sprawdź połączenie z internetem.');
+                    console.error("Błąd wysyłania formularza:", error);
+                }
+                
                 setIsSubmitting(false);
             };
 
