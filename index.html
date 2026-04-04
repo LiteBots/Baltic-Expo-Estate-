@@ -306,7 +306,6 @@
                 }
             };
 
-            // Funkcja komunikująca się z API EmailJS
             const sendEmailJS = async (templateParams) => {
                 return fetch('https://api.emailjs.com/api/v1.0/email/send', {
                     method: 'POST',
@@ -326,11 +325,10 @@
                 setFormStatus(null);
                 
                 try {
-                    // Wysłanie danych do EmailJS
+                    // Tutaj klucz TO companyName - by idealnie pasowało do Twojego szablonu
                     const response = await sendEmailJS({
                         name: formData.name,
-                        company: formData.companyName,       // Wysłane jako company
-                        company_name: formData.companyName,  // Wysłane jako company_name (na wszelki wypadek)
+                        companyName: formData.companyName, 
                         nip: formData.nip || 'Nie podano',
                         email: formData.email,
                         phone: formData.phone
