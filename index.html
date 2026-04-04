@@ -217,10 +217,6 @@
         };
 
         function App() {
-            const [isLocked, setIsLocked] = useState(true);
-            const [showDevInput, setShowDevInput] = useState(false);
-            const [unlockCode, setUnlockCode] = useState('');
-
             const [scrolled, setScrolled] = useState(false);
             const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
             
@@ -231,22 +227,13 @@
             
             const heroTextRef = useRef(null);
 
-            const handleUnlockCodeChange = (e) => {
-                const val = e.target.value;
-                setUnlockCode(val);
-                if (val === '0033') {
-                    setIsLocked(false);
-                    setShowDevInput(false);
-                }
-            };
-
             useEffect(() => {
-                if (isLocked || mobileMenuOpen) {
+                if (mobileMenuOpen) {
                     document.body.style.overflow = 'hidden';
                 } else {
                     document.body.style.overflow = 'unset';
                 }
-            }, [isLocked, mobileMenuOpen]);
+            }, [mobileMenuOpen]);
 
             useEffect(() => {
                 const observerOptions = { root: null, rootMargin: '0px', threshold: 0.15 };
@@ -259,9 +246,7 @@
                     });
                 }, observerOptions);
 
-                if (!isLocked) {
-                    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-                }
+                document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
                 const handleScroll = () => {
                     setScrolled(window.scrollY > 50);
@@ -280,7 +265,7 @@
                     window.removeEventListener('scroll', handleScroll);
                     observer.disconnect();
                 };
-            }, [isLocked]); 
+            }, []); 
 
             const handleNipChange = async (e) => {
                 const nipValue = e.target.value.replace(/\D/g, ''); 
@@ -325,17 +310,17 @@
                 setFormStatus(null);
                 
                 try {
-                    // Tutaj klucz TO companyName - by idealnie pasowało do Twojego szablonu
                     const response = await sendEmailJS({
                         name: formData.name,
-                        companyName: formData.companyName, 
+                        company: formData.companyName,       
+                        companyName: formData.companyName,  
                         nip: formData.nip || 'Nie podano',
                         email: formData.email,
                         phone: formData.phone
                     });
 
                     if (response.ok) {
-                        setFormStatus('Sukces! Komplet dokumentów wystawcy został wysłany na Twój adres e-mail.');
+                        setFormStatus('Twoje zgłoszenie zostało wysłane pomyślnie. Nasza obsługa wkrótce się z Tobą skontaktuje.');
                         setFormData({ nip: '', companyName: '', name: '', phone: '', email: '' });
                     } else {
                         setFormStatus('Wystąpił problem z serwerem poczty. Spróbuj ponownie później.');
@@ -353,42 +338,8 @@
             return (
                 <div className="relative w-full h-full">
                     
-                    {/* WIDOK BLOKADY (UNDER CONSTRUCTION) */}
-                    {isLocked && (
-                        <div className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-white/40 backdrop-blur-xl">
-                            <div className="text-center px-4 animate-fade-in">
-                                <h1 className="text-4xl sm:text-5xl md:text-7xl font-grotesk font-black uppercase tracking-tighter text-black">
-                                    Strona w budowie
-                                </h1>
-                                <p className="mt-4 text-sm md:text-base text-zinc-600 font-medium font-mono uppercase tracking-widest">
-                                    Bałtyckie Targi Nieruchomości
-                                </p>
-                            </div>
-                            
-                            <div className="fixed bottom-4 right-4 flex flex-col items-end gap-2">
-                                {showDevInput && (
-                                    <input 
-                                        autoFocus
-                                        type="password" 
-                                        maxLength="4"
-                                        placeholder="****" 
-                                        value={unlockCode}
-                                        onChange={handleUnlockCodeChange}
-                                        className="w-24 border-2 border-black bg-white px-3 py-2 text-center text-xl font-black tracking-[0.3em] outline-none shadow-[4px_4px_0px_0px_rgba(5,5,5,1)]"
-                                    />
-                                )}
-                                <button 
-                                    onClick={() => setShowDevInput(!showDevInput)} 
-                                    className="text-[10px] font-mono font-bold tracking-widest text-zinc-400 hover:text-black transition-colors px-2 py-1"
-                                >
-                                    [ Developer ]
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
                     {/* GŁÓWNA ZAWARTOŚĆ STRONY */}
-                    <div className={`min-h-screen relative w-full overflow-hidden transition-all duration-700 ${isLocked ? 'blur-md grayscale-[30%] pointer-events-none select-none h-screen' : ''}`}>
+                    <div className="min-h-screen relative w-full overflow-hidden transition-all duration-700">
                         
                         {/* NAWIGACJA */}
                         <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'py-3 md:py-4 bg-white/95 backdrop-blur-xl border-b border-black/10 shadow-sm' : 'py-4 md:py-8 bg-transparent'}`}>
@@ -474,9 +425,11 @@
                                         <p className="text-xs md:text-sm text-zinc-500 mb-6 font-medium leading-relaxed">Skontaktuj się z nami i zapytaj o szczegóły oferty, dostępność stoisk oraz możliwości promocji Twojej firmy.</p>
                                         
                                         {formStatus ? (
-                                            <div className="bg-black text-white p-6 md:p-8 border border-black font-medium text-base md:text-lg leading-relaxed relative overflow-hidden reveal reveal-scale active">
-                                                <div className="absolute -right-10 -bottom-10 opacity-10"><Icon name="check-circle" size={100} className="md:w-[120px] md:h-[120px]" /></div>
-                                                <Icon name="check-circle" className="text-white mb-4" size={30} />
+                                            <div className="bg-green-500 text-white p-6 md:p-8 border border-green-600 font-medium text-base md:text-lg leading-relaxed relative overflow-hidden rounded-md shadow-lg reveal reveal-scale active">
+                                                <div className="absolute -right-4 -bottom-4 opacity-20">
+                                                    <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                                </div>
+                                                <svg className="text-white mb-4 relative z-10" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                                                 <p className="relative z-10">{formStatus}</p>
                                             </div>
                                         ) : (
