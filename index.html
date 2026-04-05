@@ -490,6 +490,22 @@
                                                     <label htmlFor="email" className="input-label">Służbowy e-mail</label>
                                                 </div>
 
+                                                {/* NOWY CHECKBOX ZGODY RODO */}
+                                                <div className="flex items-start gap-3 pt-3 pb-1">
+                                                    <div className="relative flex items-center justify-center mt-0.5">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            id="consent" 
+                                                            required 
+                                                            className="peer appearance-none w-4 h-4 border-2 border-zinc-300 checked:border-black checked:bg-black rounded-none cursor-pointer transition-colors"
+                                                        />
+                                                        <Icon name="check-circle" size={12} className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none" />
+                                                    </div>
+                                                    <label htmlFor="consent" className="text-[10px] md:text-xs text-zinc-500 font-medium leading-relaxed cursor-pointer select-none">
+                                                        Wyrażam zgodę na przetwarzanie moich danych osobowych w celu kontaktu oraz przedstawienia oferty udziału w Bałtyckich Targach Nieruchomości.
+                                                    </label>
+                                                </div>
+
                                                 <button type="submit" disabled={isSubmitting} className="w-full bg-black text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all mt-4 disabled:bg-zinc-400 disabled:cursor-not-allowed group flex justify-center items-center gap-2">
                                                     <span className="relative z-10 flex items-center gap-2">
                                                         {isSubmitting ? 'Wysyłanie...' : 'Odbierz Ofertę'}
